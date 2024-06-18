@@ -13,6 +13,7 @@ spec:
       labels:
         app: proyectofinal
     spec:
+      serviceAccountName: default
       containers:
       - name: acrplopez
         image: acrplopez.azurecr.io/app-plopez:1.0
