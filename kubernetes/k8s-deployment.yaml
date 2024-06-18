@@ -40,5 +40,12 @@ spec:
             configMapKeyRef:
               name: k8s-config
               key: DB_NAME
+        securityContext:
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
       imagePullSecrets:
       - name: regcred
