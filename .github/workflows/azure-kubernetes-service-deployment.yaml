@@ -41,4 +41,3 @@ jobs:
     - name: Deploy
       run: |
         kubectl apply -f kubernetes/. -n ns-plopez
-        # kubectl describe svc proyectofinal-service 
