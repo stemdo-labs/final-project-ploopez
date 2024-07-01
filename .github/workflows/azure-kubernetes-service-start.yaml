@@ -30,7 +30,7 @@ jobs:
     - name: Connection to cluster and secret create
       run: |
         az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
-        az aks get-credentials --resource-group ${{ vars.COMMON_RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+        az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
