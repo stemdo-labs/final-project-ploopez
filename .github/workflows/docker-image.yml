@@ -2,13 +2,13 @@ name: Docker Image CI
 
 on: 
   workflow_dispatch:
-  push:
-    branches: 
-    - main
-    - develop
-    paths:
-      - 'aplicativo/aplicativoNuevo/**'
-      - 'kubernetes/**'
+  #push:
+  #  branches: 
+  #  - main
+  #  - develop
+  #  paths:
+  #    - 'aplicativo/aplicativoNuevo/**'
+  #    - 'kubernetes/**'
     
 jobs:
   build:
