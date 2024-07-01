@@ -17,6 +17,15 @@ jobs:
     - uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Print debug information
+      run: |
+        echo "Container Registry Name: ${{ vars.CONTAINER_REGISTRY_NAME }}"
+        echo "Resource Group Name: ${{ vars.RESOURCE_GROUP_NAME }}"
+        echo "Kubernetes Cluster Name: ${{ vars.KUBERNETES_CLUSTER_NAME }}"
+        echo "Container Registry Server: ${{ vars.CONTAINER_REGISTRY_SERVER }}"
+        echo "Container Registry Password: ${{ vars.CONTAINER_REGISTRY_PASSWORD }}"
+
         
     - name: Connection to cluster and secret create
       run: |
