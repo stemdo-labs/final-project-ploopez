@@ -26,8 +26,8 @@ jobs:
 
       - name: Transfer Backup to VM
         run: |
-          scp "./$latest_backup" adminuser@10.0.1.4:/home/adminuser/
+          scp "./$latest_backup" adminuser@10.0.30.4:/home/adminuser/
 
       - name: Restore Database
         run: |
-          ssh adminuser@10.0.1.4 "mysql -u plopez -p1234 concierto < /home/adminuser/$latest_backup"
+          ssh adminuser@10.0.30.4 "mysql -u plopez -p1234 concierto < /home/adminuser/$latest_backup"
