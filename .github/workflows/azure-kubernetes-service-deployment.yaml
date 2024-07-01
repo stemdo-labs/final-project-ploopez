@@ -33,10 +33,9 @@ jobs:
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         sudo apt-get install build-essential
         brew install Azure/kubelogin/kubelogin
-        kubelogin convert-kubeconfig -l azurecli
-        which kubelogin
         az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
         az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+        kubelogin convert-kubeconfig -l azurecli
         kubectl apply -f kubernetes/. -n ns-plopez
         kubectl describe svc proyectofinal-service 
 
