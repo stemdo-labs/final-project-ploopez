@@ -29,16 +29,13 @@ jobs:
         
     - name: Connection to cluster and secret create
       run: |
+        az account set --subscription ${{ secrets.SUBSCRIPTION_ID }}
+        az aks get-credentials --resource-group ${{ vars.COMMON_RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        brew install Azure/kubelogin/kubelogin
-        brew update
-        brew upgrade Azure/kubelogin/kubelogin
         (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         sudo apt-get install build-essential
-        brew install gcc
-        #az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
-        az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
-        az aks get-credentials --resource-group final-project-common --name aksbootcampwe01 --overwrite-existing
+        brew install Azure/kubelogin/kubelogin
         kubelogin convert-kubeconfig -l azurecli
         kubectl create secret docker-registry regcred --docker-server=${{ vars.CONTAINER_REGISTRY_SERVER }} --docker-username=${{ vars.CONTAINER_REGISTRY_NAME }} --docker-password=${{ vars.CONTAINER_REGISTRY_PASSWORD }}
