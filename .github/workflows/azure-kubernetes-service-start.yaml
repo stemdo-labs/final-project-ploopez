@@ -29,10 +29,7 @@ jobs:
         
     - name: Connection to cluster and secret create
       run: |
-        sudo apt-get install build-essential procps curl file git
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        brew doctor
         brew install Azure/kubelogin/kubelogin
         brew update
         brew upgrade Azure/kubelogin/kubelogin
