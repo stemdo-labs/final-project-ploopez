@@ -1,13 +1,13 @@
 name: 'Start AKS and create Secret of ACR'
 
-on: workflow_dispatch
+on:  workflow_dispatch
 
 jobs:
   k8s:
     name: 'K8s'
     runs-on: ubuntu-latest
     environment: production
-
+ 
     defaults:
       run:
         shell: bash
@@ -17,46 +17,24 @@ jobs:
     - uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Print debug information
+      run: |
+        echo "Container Registry Name: ${{ vars.CONTAINER_REGISTRY_NAME }}"
+        echo "Resource Group Name: ${{ vars.RESOURCE_GROUP_NAME }}"
+        echo "Kubernetes Cluster Name: ${{ vars.KUBERNETES_CLUSTER_NAME }}"
+        echo "Container Registry Server: ${{ vars.CONTAINER_REGISTRY_SERVER }}"
+        echo "Container Registry Password: ${{ vars.CONTAINER_REGISTRY_PASSWORD }}"
         
-    - name: Set Azure Subscription
+    - name: Connection to cluster and secret create
       run: |
         az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
-
-    - name: Get AKS Credentials
-      run: |
         az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
-
-    - name: Install Azure CLI
-      run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-    - name: Install Homebrew
-      if: runner.os == 'Linux'
-      run: |
-        if ! command -v brew &>/dev/null; then
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        fi
-
-    - name: Set up Homebrew environment
-      if: runner.os == 'Linux'
-      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-    - name: Install build-essential
-      run: |
-        sudo apt-get install -y build-essential
-
-    - name: Install kubelogin
-      run: |
+        sudo apt-get install build-essential
         brew install Azure/kubelogin/kubelogin
-
-    - name: Convert kubeconfig for Azure CLI login
-      run: |
         kubelogin convert-kubeconfig -l azurecli
-
-    - name: Create Docker Registry Secret
-      run: |
         kubectl create secret docker-registry regcred --docker-server=${{ vars.CONTAINER_REGISTRY_SERVER }} --docker-username=${{ vars.CONTAINER_REGISTRY_NAME }} --docker-password=${{ vars.CONTAINER_REGISTRY_PASSWORD }}
-
