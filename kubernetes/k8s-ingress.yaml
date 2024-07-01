@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proyectofinal-ingress
+  namespace: ns-plopez
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: proyectofinalplopez.stemdo.com  # Cambia esto al dominio que quieras usar
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: proyectofinal-service
+            port:
+              number: 80

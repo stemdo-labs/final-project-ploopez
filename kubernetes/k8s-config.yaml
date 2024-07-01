@@ -2,9 +2,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: k8s-config
-  namespace: default
+  namespace: ns-plopez
 data:
-  DB_HOST: "10.0.1.4"
+  DB_HOST: "10.0.30.4"
   DB_USER: "plopez"
   DB_PASSWORD: "1234"
   DB_NAME: "concierto"
