@@ -29,7 +29,7 @@ jobs:
         
     - name: Connection to cluster and secret create
       run: |
-        az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
+        #az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
         az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
         az aks get-credentials --resource-group final-project-common --name aksbootcampwe01 --overwrite-existing
         kubelogin convert-kubeconfig -l azurecli
