@@ -29,6 +29,13 @@ jobs:
         
     - name: Connection to cluster and secret create
       run: |
+        sudo apt-get install build-essential procps curl file git
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        brew doctor
+        brew install Azure/kubelogin/kubelogin
+        brew update
+        brew upgrade Azure/kubelogin/kubelogin
         #az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
         az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
         az aks get-credentials --resource-group final-project-common --name aksbootcampwe01 --overwrite-existing
