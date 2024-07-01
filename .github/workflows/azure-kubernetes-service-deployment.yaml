@@ -33,6 +33,8 @@ jobs:
     - name: Install kubelogin
       run: |
         brew install Azure/kubelogin/kubelogin
+        brew update
+        brew upgrade Azure/kubelogin/kubelogin
 
     - name: Connection to cluster
       run: |
