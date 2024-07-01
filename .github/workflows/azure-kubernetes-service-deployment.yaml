@@ -21,6 +21,10 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+        
     - name: Connection to cluster
       run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -32,14 +36,7 @@ jobs:
         kubelogin convert-kubeconfig -l azurecli
         which kubelogin
         az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
-        az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
         az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
-        
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Deploy
-      run: |
         kubectl apply -f kubernetes/. -n ns-plopez
         kubectl describe svc proyectofinal-service 
+
