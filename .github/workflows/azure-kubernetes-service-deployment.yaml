@@ -22,10 +22,16 @@ jobs:
       run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-    - name: Install kubelogin
+    - name: Install Homebrew
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+    - name: Install kubelogin
+      run: |
         brew install Azure/kubelogin/kubelogin
 
     - name: Connection to cluster
@@ -41,3 +47,4 @@ jobs:
     - name: Deploy
       run: |
         kubectl apply -f kubernetes/. -n ns-plopez
+        kubectl describe svc proyectofinal-service
