@@ -37,5 +37,7 @@ jobs:
         az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
         kubelogin convert-kubeconfig -l azurecli
         kubectl apply -f kubernetes/. -n ns-plopez
-        kubectl describe svc proyectofinal-service 
+        kubectl describe svc proyectofinal-service -n ns-plopez
+        kubectl get svc -n ns-plopez
+
 
