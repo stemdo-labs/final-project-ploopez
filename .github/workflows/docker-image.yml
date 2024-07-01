@@ -30,6 +30,6 @@ jobs:
       - name: build and push
         run: |
           docker build -t plopez/app-plopez:1.0 aplicativo/aplicativoNuevo/.
-          docker tag plopez/app-plopez:1.0  acrplopez.azurecr.io/app-plopez:1.0
-          az acr login --name acrplopez
-          docker push acrplopez.azurecr.io/app-plopez:1.0
+          docker tag plopez/app-plopez:1.0  acrplopezfp2.azurecr.io/app-plopez:1.0
+          az acr login --name acrplopezfp2
+          docker push acrplopezfp2.azurecr.io/app-plopez:1.0
