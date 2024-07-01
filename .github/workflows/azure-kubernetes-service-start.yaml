@@ -31,5 +31,5 @@ jobs:
       run: |
         az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
         az aks install-cli
-        az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }}
+        az aks get-credentials --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing --resource-group ${{ vars.RESOURCE_GROUP_NAME }} 
         kubectl create secret docker-registry regcred --docker-server=${{ vars.CONTAINER_REGISTRY_SERVER }} --docker-username=${{ vars.CONTAINER_REGISTRY_NAME }} --docker-password=${{ vars.CONTAINER_REGISTRY_PASSWORD }}
