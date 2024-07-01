@@ -30,6 +30,7 @@ jobs:
     - name: Connection to cluster and secret create
       run: |
         az acr login --name ${{ vars.CONTAINER_REGISTRY_NAME }}
-        az aks install-cli
-        az aks get-credentials --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing --resource-group ${{ vars.RESOURCE_GROUP_NAME }} 
+        az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
+        az aks get-credentials --resource-group final-project-common --name aksbootcampwe01 --overwrite-existing
+        kubelogin convert-kubeconfig -l azurecli
         kubectl create secret docker-registry regcred --docker-server=${{ vars.CONTAINER_REGISTRY_SERVER }} --docker-username=${{ vars.CONTAINER_REGISTRY_NAME }} --docker-password=${{ vars.CONTAINER_REGISTRY_PASSWORD }}
