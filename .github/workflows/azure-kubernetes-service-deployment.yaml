@@ -38,7 +38,6 @@ jobs:
         kubelogin convert-kubeconfig -l azurecli
         kubectl apply -f kubernetes/. -n ns-plopez
         kubectl describe svc proyectofinal-service -n ns-plopez
-        kubectl get pod svc -n ns-plopez
         kubectl get service ingress-nginx-controller --namespace=ingress-nginx
 
 
