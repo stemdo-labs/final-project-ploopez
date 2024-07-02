@@ -35,7 +35,7 @@ jobs:
       - name: Extract Version from docker-compose.json
         id: get_version
         run: |
-          VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/docker-compose.json)
+          VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
           if [ -z "$VERSION" ]; then
             echo "No se pudo obtener la versión desde docker-compose.json"
             exit 1
