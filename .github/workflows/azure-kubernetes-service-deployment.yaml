@@ -17,17 +17,17 @@ jobs:
 
     outputs:
       tag: ${{ steps.get_version.outputs.version }}
- 
+      
     defaults:
       run:
         shell: bash
-
+        
     steps:
     - uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Extract Version from docker-compose.json
+    - name: Extract Version from composer.json
       id: get_version
       run: |
           VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
