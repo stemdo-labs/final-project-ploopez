@@ -4,13 +4,14 @@ metadata:
   name: proyectofinal-ingress
   namespace: ns-plopez
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-  - host: proyectofinalplopez.local
-    http:
+  - http:
       paths:
-      - path: /
+      - path: /plopez
         pathType: Prefix
         backend:
           service:
