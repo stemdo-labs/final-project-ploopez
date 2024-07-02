@@ -1,19 +1,24 @@
 name: Docker Image CI
 
 on: 
+  #ci
   workflow_dispatch:
-  #push:
-  #  branches: 
-  #  - main
-  #  - develop
-  #  paths:
-  #    - 'aplicativo/aplicativoNuevo/**'
+  pull_request:
+    types:
+    - opened
+    branches: 
+    - main
+    paths:
+    - 'aplicativo/aplicativoNuevo/**'
   #    - 'kubernetes/**'
     
 jobs:
   build:
     name: 'Build and Push to ACR'
     runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.get_version.outputs.version }}
 
     defaults:
       run:
@@ -27,9 +32,19 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Extract Version from docker-compose.json
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/docker-compose.json)
+          if [ -z "$VERSION" ]; then
+            echo "No se pudo obtener la versión desde docker-compose.json"
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
       - name: build and push
         run: |
           docker build -t plopez/app-plopez:1.0 aplicativo/aplicativoNuevo/.
-          docker tag plopez/app-plopez:1.0  acrplopezfp2.azurecr.io/app-plopez:1.0
+          docker tag plopez/app-plopez:${{ env.VERSION }}  acrplopezfp2.azurecr.io/app-plopez:${{ env.VERSION }}
           az acr login --name acrplopezfp2
-          docker push acrplopezfp2.azurecr.io/app-plopez:1.0
+          docker push acrplopezfp2.azurecr.io/app-plopez:${{ env.VERSION }}
