@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: proyectofinalplopez.stemdo.com  # Cambia esto al dominio que quieras usar
+  - host: proyectofinalplopez.local
     http:
       paths:
       - path: /
