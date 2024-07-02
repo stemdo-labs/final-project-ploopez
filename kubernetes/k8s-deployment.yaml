@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: acrplopez
-        image: acrplopez.azurecr.io/app-plopez:1.0
+        image: acrplopezfp2.azurecr.io/app-plopez:1.0
         ports:
         - containerPort: 80
         env:
