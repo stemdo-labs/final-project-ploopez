@@ -36,7 +36,7 @@ jobs:
       run: |
           VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
           if [ -z "$VERSION" ]; then
-            echo "No se pudo obtener la versión desde docker-compose.json"
+            echo "No se pudo obtener la versión desde composer.json"
             exit 1
           fi
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
