@@ -2,12 +2,12 @@ name: Execute Kubectl apply
 # cd
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-    - 'aplicativo/aplicativoNuevo/**'
-    - 'kubernetes/**'
+  #push:
+  #  branches:
+  #    - main
+  #  paths:
+  #  - 'aplicativo/aplicativoNuevo/**'
+  #  - 'kubernetes/**'
 
 jobs:
   k8s:
