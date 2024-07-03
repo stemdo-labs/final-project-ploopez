@@ -1,4 +1,4 @@
-name: 3. Deploy to AKS
+name: Deploy to AKS
 
 on:
   workflow_call:
@@ -33,3 +33,4 @@ jobs:
           kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }} -n ns-plopez
           kubectl describe svc proyectofinal-service -n ns-plopez
           kubectl get service ingress-nginx-controller --namespace=ingress-nginx
+
