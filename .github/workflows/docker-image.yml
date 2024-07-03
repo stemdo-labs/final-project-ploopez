@@ -33,16 +33,22 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+
+      - name: Extract Version from composer.json
+        id: get_version
+        run: |
+          VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
+          if [ -z "$VERSION" ]; then
+            echo "No se pudo obtener la versión desde composer.json"
+            exit 1
+          fi
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+
       - name: Set Docker Tag
         id: set_tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
-            if [ -z "$VERSION" ]; then
-              echo "No se pudo obtener la versión desde composer.json"
-              exit 1
-            fi
-            TAG=${VERSION}
+            TAG=${{ env.VERSION }}
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             TAG=$(date +'%Y%m%d%H%M%S')
           else
