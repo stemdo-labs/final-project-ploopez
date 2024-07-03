@@ -14,7 +14,7 @@ on:
       - 'aplicativo/aplicativoNuevo/**'
   push:
     branches:
-      - main
+      - develop
     paths:
       - 'aplicativo/aplicativoNuevo/**'
     
@@ -52,8 +52,6 @@ jobs:
             TAG=${{ env.VERSION }}
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             TAG=$(date +'%Y%m%d%H%M%S')
-          else
-            TAG="latest"
           fi
           echo "TAG=${TAG}" >> $GITHUB_ENV
 
