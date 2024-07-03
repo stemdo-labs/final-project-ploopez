@@ -1,0 +1,21 @@
+name: 6. Execute Kubectl apply
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'kubernetes/**'
+
+jobs:
+  extract_version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      branch: main
+
+  deploy:
+    needs: extract_version
+    uses: ./.github/workflows/deploy-aks.yml
+    with:
+      version: ${{ jobs.extract_version.outputs.version }}
