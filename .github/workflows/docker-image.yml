@@ -9,7 +9,6 @@ on:
       - reopened
     branches: 
       - main
-      - develop
     paths:
       - 'aplicativo/aplicativoNuevo/**'
   push:
