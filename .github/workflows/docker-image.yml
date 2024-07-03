@@ -14,7 +14,7 @@ on:
       - 'aplicativo/aplicativoNuevo/**'
   push:
     branches:
-      - main
+      - develop
     paths:
       - 'aplicativo/aplicativoNuevo/**'
     
