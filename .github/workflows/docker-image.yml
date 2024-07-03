@@ -1,6 +1,7 @@
 name: Docker Image CI
 
 on: 
+  #ci
   workflow_dispatch:
   pull_request:
     types:
@@ -14,7 +15,6 @@ on:
   push:
     branches:
       - main
-      - develop
     
 jobs:
   build:
@@ -33,7 +33,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-
       - name: Extract Version from composer.json
         id: get_version
         run: |
@@ -42,7 +41,7 @@ jobs:
             echo "No se pudo obtener la versión desde composer.json"
             exit 1
           fi
-          echo "TAG=${TAG}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Set Docker Tag
         id: set_tag
@@ -62,4 +61,3 @@ jobs:
           docker tag plopez/app-plopez:${{ env.TAG }} acrplopezfp2.azurecr.io/app-plopez:${{ env.TAG }}
           az acr login --name acrplopezfp2
           docker push acrplopezfp2.azurecr.io/app-plopez:${{ env.TAG }}
-
