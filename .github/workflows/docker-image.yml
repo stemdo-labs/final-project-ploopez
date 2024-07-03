@@ -1,25 +1,25 @@
 name: Docker Image CI
 
 on: 
-  #ci
   workflow_dispatch:
   pull_request:
     types:
-    - opened
-    - reopened
+      - opened
+      - reopened
     branches: 
-    - main
+      - main
+      - develop
     paths:
-    - 'aplicativo/aplicativoNuevo/**'
-  #    - 'kubernetes/**'
+      - 'aplicativo/aplicativoNuevo/**'
+  push:
+    branches:
+      - main
+      - develop
     
 jobs:
   build:
     name: 'Build and Push to ACR'
     runs-on: ubuntu-latest
-
-    outputs:
-      tag: ${{ steps.get_version.outputs.version }}
 
     defaults:
       run:
@@ -33,19 +33,27 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Extract Version from docker-compose.json
-        id: get_version
+      - name: Set Docker Tag
+        id: set_tag
         run: |
-          VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
-          if [ -z "$VERSION" ]; then
-            echo "No se pudo obtener la versión desde docker-compose.json"
-            exit 1
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
+            if [ -z "$VERSION" ]; then
+              echo "No se pudo obtener la versión desde composer.json"
+              exit 1
+            fi
+            TAG=${VERSION}
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            TAG=$(date +'%Y%m%d%H%M%S')
+          else
+            TAG="latest"
           fi
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "TAG=${TAG}" >> $GITHUB_ENV
 
-      - name: build and push
+      - name: Build and Push Docker Image
         run: |
-          docker build -t plopez/app-plopez:${{ env.VERSION }} aplicativo/aplicativoNuevo/.
-          docker tag plopez/app-plopez:${{ env.VERSION }}  acrplopezfp2.azurecr.io/app-plopez:${{ env.VERSION }}
+          docker build -t plopez/app-plopez:${{ env.TAG }} aplicativo/aplicativoNuevo/.
+          docker tag plopez/app-plopez:${{ env.TAG }} acrplopezfp2.azurecr.io/app-plopez:${{ env.TAG }}
           az acr login --name acrplopezfp2
-          docker push acrplopezfp2.azurecr.io/app-plopez:${{ env.VERSION }}
+          docker push acrplopezfp2.azurecr.io/app-plopez:${{ env.TAG }}
+
