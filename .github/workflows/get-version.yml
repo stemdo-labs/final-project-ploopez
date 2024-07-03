@@ -1,4 +1,4 @@
-name: 1. Get Version
+name: Get Version
 
 on:
   workflow_call:
@@ -32,3 +32,4 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "::set-output name=version::${VERSION}"
         shell: bash
+
