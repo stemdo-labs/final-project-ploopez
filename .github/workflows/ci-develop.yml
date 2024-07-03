@@ -1,15 +1,21 @@
 name: Docker Image CI Dev
 
-on: 
+on:
   workflow_dispatch:
   push:
     branches:
       - develop
     paths:
       - 'aplicativo/aplicativoNuevo/**'
-    
+
 jobs:
-  build-and-push:
+  extract_version:
+    uses: ./.github/workflows/get-version.yml
+    with:
+      branch: develop
+
+  build_and_push:
+    needs: extract_version
     uses: ./.github/workflows/build-and-push-docker.yml
     with:
-      tag: ${{ github.sha }}
+      tag: ${{ jobs.extract_version.outputs.version }}
