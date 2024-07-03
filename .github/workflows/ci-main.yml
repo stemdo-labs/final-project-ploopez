@@ -20,4 +20,4 @@ jobs:
     needs: extract_version
     uses: ./.github/workflows/build-and-push-docker.yml
     with:
-      tag: ${{ jobs.extract_version.outputs.version }}
+      tag: ${{ needs.extract_version.outputs.version }}
