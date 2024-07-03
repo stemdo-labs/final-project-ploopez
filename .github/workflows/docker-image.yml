@@ -5,21 +5,22 @@ on:
   workflow_dispatch:
   pull_request:
     types:
-    - opened
-    - reopened
+      - opened
+      - reopened
     branches: 
-    - main
+      - main
+      - develop
     paths:
-    - 'aplicativo/aplicativoNuevo/**'
-  #    - 'kubernetes/**'
+      - 'aplicativo/aplicativoNuevo/**'
+  push:
+    branches:
+      - main
+      - develop
     
 jobs:
   build:
     name: 'Build and Push to ACR'
     runs-on: ubuntu-latest
-
-    outputs:
-      tag: ${{ steps.get_version.outputs.version }}
 
     defaults:
       run:
@@ -33,19 +34,31 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Extract Version from docker-compose.json
+      - name: Extract Version from composer.json
         id: get_version
         run: |
           VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
           if [ -z "$VERSION" ]; then
-            echo "No se pudo obtener la versión desde docker-compose.json"
+            echo "No se pudo obtener la versión desde composer.json"
             exit 1
           fi
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
-      - name: build and push
+      - name: Set Docker Tag
+        id: set_tag
         run: |
-          docker build -t plopez/app-plopez:${{ env.VERSION }} aplicativo/aplicativoNuevo/.
-          docker tag plopez/app-plopez:${{ env.VERSION }}  acrplopezfp2.azurecr.io/app-plopez:${{ env.VERSION }}
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            TAG=${{ env.VERSION }}
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            TAG=$(date +'%Y%m%d%H%M%S')
+          else
+            TAG="latest"
+          fi
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t plopez/app-plopez:${{ env.TAG }} aplicativo/aplicativoNuevo/.
+          docker tag plopez/app-plopez:${{ env.TAG }} acrplopezfp2.azurecr.io/app-plopez:${{ env.TAG }}
           az acr login --name acrplopezfp2
-          docker push acrplopezfp2.azurecr.io/app-plopez:${{ env.VERSION }}
+          docker push acrplopezfp2.azurecr.io/app-plopez:${{ env.TAG }}
