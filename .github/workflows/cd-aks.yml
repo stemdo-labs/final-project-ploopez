@@ -18,4 +18,4 @@ jobs:
     needs: extract_version
     uses: ./.github/workflows/deploy-aks.yml
     with:
-      version: ${{ jobs.extract_version.outputs.version }}
+      version: ${{ needs.extract_version.outputs.version }}
