@@ -1,12 +1,10 @@
-name: Docker Image CI
+name: Docker Image CI Pre/prod
 
 on: 
-  #ci
   workflow_dispatch:
   pull_request:
     types:
-    - opened
-    - reopened
+    - closed
     branches: 
     - main
     paths:
