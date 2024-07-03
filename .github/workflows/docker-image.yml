@@ -43,17 +43,16 @@ jobs:
             echo "No se pudo obtener la versión desde composer.json"
             exit 1
           fi
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
       - name: Set Docker Tag
         id: set_tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             TAG=${{ env.VERSION }}
+             echo "TAG=${{ env.VERSION }}"
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             TAG=$(date +'%Y%m%d%H%M%S')
-          else
-            TAG="latest"
+            echo "TAG=$(date +'%Y%m%d%H%M%S')"
           fi
           echo "TAG=${TAG}" >> $GITHUB_ENV
 
