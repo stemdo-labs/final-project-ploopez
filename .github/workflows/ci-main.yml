@@ -43,7 +43,7 @@ jobs:
 
       - name: Build and Push Docker Image
         with:
-          secrets: inherit
           version: ${{ needs.extract_version.outputs.version }}
+          secrets: inherit
         uses: ./.github/actions/build-and-push-docker
         
