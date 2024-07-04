@@ -35,6 +35,7 @@ jobs:
   build_and_push:
     needs: extract_version
     runs-on: ubuntu-latest
+
     steps:
 
       - name: Checkout code
@@ -42,6 +43,8 @@ jobs:
 
       - name: Build and Push Docker Image
         uses: ./.github/actions/build-and-push-docker
+        
         with:
           version: ${{ needs.extract_version.outputs.version }}
-          azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
