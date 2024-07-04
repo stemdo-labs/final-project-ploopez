@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Extracted Version
-        run: echo "Extracted VERSION:${{ needs.extract_version.outputs.version }}"
+        run: echo "Extracted VERSION (Main workflow): ${{ needs.extract_version.outputs.version }}"
         shell: bash
 
   build_and_push:
