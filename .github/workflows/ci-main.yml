@@ -31,14 +31,12 @@ jobs:
             VERSION=$(date +'%Y%m%d%H%M%S')
           else
             sudo apt-get update && sudo apt-get install -y jq
-            VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
-            if [ -z "$VERSION" ]; then
+            version=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json) >> $GITHUB_OUTPUT
+            if [ -z "$version" ]; then
               echo "No se pudo obtener la versión desde composer.json"
               exit 1
             fi
           fi
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "::set-output name=version::${VERSION}"
         shell: bash
       
       - name: Print version
@@ -58,9 +56,9 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Print version input
-        run: echo "Version input is ${{ needs.extraact_version.outputs.version }}"
+        run: echo "Version input is ${{ needs.extraact_version.outputs.tag }}"
 
       - name: Build and Push Docker Image
         uses: ./.github/actions/build-and-push-docker
         with:
-          version: ${{ needs.extract_version.outputs.version }}
+          version: ${{ needs.extract_version.outputs.tag }}
