@@ -18,6 +18,9 @@ jobs:
   extract_version:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Get Version
         id: get_version
         uses: ./.github/actions/get-version
@@ -33,6 +36,10 @@ jobs:
     needs: extract_version
     runs-on: ubuntu-latest
     steps:
+      
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Build and Push Docker Image
         uses: ./.github/actions/build-and-push-docker
         with:
