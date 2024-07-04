@@ -9,6 +9,9 @@ on:
       - main
     paths:
       - 'aplicativo/aplicativoNuevo/**'
+  push:
+    branches:
+      - develop
 
 jobs:
   extract_version:
