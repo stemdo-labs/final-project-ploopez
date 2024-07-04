@@ -21,6 +21,7 @@ jobs:
 
   build_and_push:
     needs: extract_version
+    secrets: inherit
     uses: ./.github/workflows/build-and-push-docker.yml
     with:
       tag: ${{ needs.extract_version.outputs.version }}
