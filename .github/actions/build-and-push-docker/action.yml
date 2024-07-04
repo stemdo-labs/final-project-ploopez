@@ -4,6 +4,10 @@ inputs:
   tag:
     description: 'The tag for the Docker image'
     required: true
+  
+  version:
+    description: 'Version of the Docker image'
+    required: true
 
   azureCredentials:
     description: 'Azure credentials'
