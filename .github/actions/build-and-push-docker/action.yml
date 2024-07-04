@@ -16,7 +16,7 @@ runs:
       run: |
         echo "Building Docker image with version: ${{ inputs.version }}"
         docker build -t plopez/app-plopez:${{ inputs.version }} aplicativo/aplicativoNuevo/.
-        docker version plopez/app-plopez:${{ inputs.version }} acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }}
+        docker tag plopez/app-plopez:${{ inputs.version }} acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }}
         az acr login --name acrplopezfp2
         docker push acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }}
       shell: bash
