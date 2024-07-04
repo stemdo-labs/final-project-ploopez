@@ -14,13 +14,22 @@ on:
       - develop
 
 jobs:
+  
   extract_version:
     uses: ./.github/workflows/get-version.yml
     with:
       branch: main
 
-  build_and_push:
+  debug_extracted_version:
     needs: extract_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Extracted Version
+        run: echo "Extracted VERSION:${{ needs.extract_version.outputs.version }}"
+        shell: bash
+
+  build_and_push:
+    needs: [extract_version, debug_extracted_version]
     secrets: inherit
     uses: ./.github/workflows/build-and-push-docker.yml
     with:
