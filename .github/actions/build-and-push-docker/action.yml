@@ -4,10 +4,11 @@ inputs:
   tag:
     description: 'The tag for the Docker image'
     required: true
-    type: string
-outputs:
-  image_url:
-    description: 'The URL of the pushed Docker image'
+
+  azureCredentials:
+    description: 'Azure credentials'
+    required: true
+
 runs:
   using: 'composite'
   steps:
@@ -17,7 +18,7 @@ runs:
     - name: Login to Azure
       uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ inputs.AZURE_CREDENTIALS }}
 
     - name: Build and Push Docker Image
       run: |
