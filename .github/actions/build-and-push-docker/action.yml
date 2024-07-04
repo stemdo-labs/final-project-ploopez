@@ -4,9 +4,7 @@ inputs:
   tag:
     description: 'The tag for the Docker image'
     required: true
-  version:
-    description: 'The version of the application'
-    required: true
+
 
 runs:
   using: 'composite'
@@ -16,11 +14,10 @@ runs:
     
     - name: Build and Push Docker Image
       run: |
-        echo "Building Docker image with tag: ${{ inputs.version }}"
-        docker build -t plopez/app-plopez:${{ inputs.version }} aplicativo/aplicativoNuevo/.
-        docker tag plopez/app-plopez:${{ inputs.version }} acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }}
+        echo "Building Docker image with tag: ${{ inputs.tag }}"
+        docker build -t plopez/app-plopez:${{ inputs.tag }} aplicativo/aplicativoNuevo/.
+        docker tag plopez/app-plopez:${{ inputs.tag }} acrplopezfp2.azurecr.io/app-plopez:${{ inputs.tag }}
         az acr login --name acrplopezfp2
-        docker push acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }}
-        echo "::set-output name=image_url::acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }}"
+        docker push acrplopezfp2.azurecr.io/app-plopez:${{ inputs.tag }}
       shell: bash
     
