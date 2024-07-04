@@ -14,51 +14,49 @@ on:
       - develop
 
 jobs:
-  extract_tag:
+  extract_version:
     runs-on: ubuntu-latest
 
     outputs:
-      tag: ${{ steps.get_version.outputs.tag }}
+      version: ${{ steps.get_version.outputs.version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get Tag
-        id: get_tag
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            tag=$(date +'%Y%m%d%H%M%S')
-          else
-            sudo apt-get update && sudo apt-get install -y jq
-            tag=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json) >> $GITHUB_OUTPUT
-            if [ -z "$tag" ]; then
-              echo "No se pudo obtener la versión desde composer.json"
-              exit 1
-            fi
-          fi
-        shell: bash
+      - name: Get Version
+        id: get_version
+        uses: ./.github/actions/get-version
+        with:
+          branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
       
-      - name: Print tag
-        run: echo "Tag is ${{ steps.get_version.outputs.tag }}"
-
-  build_and_push:
-    needs: extract_tag
+      - name: Print Version
+        run: echo "La version guaardada es ${{ steps.get_version.outputs.version }}"
+  
+  print_version:
+    needs: extract_version
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: Print tag input
-        run: echo "Tag input is ${{ needs.extract_tag.outputs.tag }}"
+      - name: Print extracted version
+        run: echo "La version extraída es ${{ needs.extract_version.outputs.version }}"
 
-      - name: Build and Push Docker Image
-        uses: ./.github/actions/build-and-push-docker
-        with:
-          version: ${{ needs.extract_tag.outputs.tag }}
+  # build_and_push:
+  #   needs: extract_version
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+      
+  #     - name: Login to Azure
+  #       uses: azure/login@v2
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+  #     - name: Print tag input
+  #       run: echo "Tag input is ${{ needs.extract_tag.outputs.tag }}"
+
+  #     - name: Build and Push Docker Image
+  #       uses: ./.github/actions/build-and-push-docker
+  #       with:
+  #         version: ${{ needs.extract_tag.outputs.tag }}
