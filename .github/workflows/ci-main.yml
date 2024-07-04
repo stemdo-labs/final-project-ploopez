@@ -14,36 +14,36 @@ on:
       - develop
 
 jobs:
-  extract_version:
+  extract_tag:
     runs-on: ubuntu-latest
 
     outputs:
-      tag: ${{ steps.get_version.outputs.version }}
+      tag: ${{ steps.get_version.outputs.tag }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get Version
-        id: get_version
+      - name: Get Tag
+        id: get_tag
         run: |
           if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            VERSION=$(date +'%Y%m%d%H%M%S')
+            tag=$(date +'%Y%m%d%H%M%S')
           else
             sudo apt-get update && sudo apt-get install -y jq
-            version=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json) >> $GITHUB_OUTPUT
-            if [ -z "$version" ]; then
+            tag=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json) >> $GITHUB_OUTPUT
+            if [ -z "$tag" ]; then
               echo "No se pudo obtener la versión desde composer.json"
               exit 1
             fi
           fi
         shell: bash
       
-      - name: Print version
-        run: echo "Version is ${{ steps.get_version.outputs.version }}"
+      - name: Print tag
+        run: echo "Tag is ${{ steps.get_version.outputs.tag }}"
 
   build_and_push:
-    needs: extract_version
+    needs: extract_tag
     runs-on: ubuntu-latest
 
     steps:
@@ -55,10 +55,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      - name: Print version input
-        run: echo "Version input is ${{ needs.extraact_version.outputs.tag }}"
+      - name: Print tag input
+        run: echo "Tag input is ${{ needs.extract_tag.outputs.tag }}"
 
       - name: Build and Push Docker Image
         uses: ./.github/actions/build-and-push-docker
         with:
-          version: ${{ needs.extract_version.outputs.tag }}
+          version: ${{ needs.extract_tag.outputs.tag }}
