@@ -4,10 +4,10 @@ inputs:
   branch:
     description: 'The branch name'
     required: true
-    type: string
 outputs:
   version:
     description: 'The extracted or generated version'
+    value: ${{ steps.set_ouput.outputs.version }}
 runs:
   using: 'composite'
   steps:
