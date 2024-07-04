@@ -14,22 +14,28 @@ on:
       - develop
 
 jobs:
-  
   extract_version:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Get Version
         id: get_version
-        uses: ./.github/actions/get-version
-        with:
-          branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
-
-      - name: Check Extracted Version
         run: |
-          echo "Extracted VERSION (Main Workflow): ${{ steps.get_version.outputs.version }}"
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            VERSION=$(date +'%Y%m%d%H%M%S')
+          else
+            sudo apt-get update && sudo apt-get install -y jq
+            VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
+            if [ -z "$VERSION" ]; then
+              echo "No se pudo obtener la versión desde composer.json"
+              exit 1
+            fi
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "::set-output name=version::${VERSION}"
         shell: bash
 
   build_and_push:
@@ -37,17 +43,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v2
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Build and Push Docker Image
+        uses: ./.github/actions/build-and-push-docker
         with:
           version: ${{ needs.extract_version.outputs.version }}
-        uses: ./.github/actions/build-and-push-docker
-        
