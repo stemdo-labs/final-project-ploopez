@@ -16,21 +16,24 @@ on:
 jobs:
   
   extract_version:
-    uses: ./.github/workflows/get-version.yml
-    with:
-      branch: main
-
-  debug_extracted_version:
-    needs: extract_version
     runs-on: ubuntu-latest
     steps:
+      - name: Get Version
+        id: get_version
+        uses: ./.github/actions/get-version
+        with:
+          branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
+
       - name: Check Extracted Version
-        run: echo "Extracted VERSION (Main workflow) ${{ needs.extract_version.outputs.version }}"
+        run: |
+          echo "Extracted VERSION (Main Workflow): ${{ steps.get_version.outputs.version }}"
         shell: bash
 
   build_and_push:
-    needs: [extract_version, debug_extracted_version]
-    secrets: inherit
-    uses: ./.github/workflows/build-and-push-docker.yml
-    with:
-      tag: ${{ needs.extract_version.outputs.version }}
+    needs: extract_version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and Push Docker Image
+        uses: ./.github/actions/build-and-push-docker
+        with:
+          version: ${{ needs.extract_version.outputs.version }}

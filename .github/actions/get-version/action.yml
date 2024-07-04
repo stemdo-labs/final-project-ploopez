@@ -1,0 +1,32 @@
+name: 'Get Version'
+description: 'Get the version from composer.json or generate a timestamp for develop'
+inputs:
+  branch:
+    description: 'The branch name'
+    required: true
+    type: string
+outputs:
+  version:
+    description: 'The extracted or generated version'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get Version
+      id: get_version
+      run: |
+        if [ "${{ inputs.branch }}" == "develop" ]; then
+          VERSION=$(date +'%Y%m%d%H%M%S')
+        else
+          sudo apt-get update && sudo apt-get install -y jq
+          VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
+          if [ -z "$VERSION" ]; then
+            echo "No se pudo obtener la versión desde composer.json"
+            exit 1
+          fi
+        fi
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        echo "::set-output name=version::${VERSION}"
+      shell: bash
