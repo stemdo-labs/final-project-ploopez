@@ -17,6 +17,9 @@ jobs:
   extract_version:
     runs-on: ubuntu-latest
 
+    outputs:
+      tag: ${{ steps.get_version.outputs.version }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,7 +58,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Print version input
-        run: echo "Version input is ${{ needs.extract_version.outputs.version }}"
+        run: echo "Version input is ${{ needs.extraact_version.outputs.version }}"
 
       - name: Build and Push Docker Image
         uses: ./.github/actions/build-and-push-docker
