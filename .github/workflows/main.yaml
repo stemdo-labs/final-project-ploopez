@@ -1,0 +1,37 @@
+name: 4. Main Workflow CI/CD
+
+on: 
+  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
+    branches: 
+      - main
+    paths:
+      - 'aplicativo/aplicativoNuevo/**'
+  push:
+    branches:
+      - develop
+
+jobs:
+  ci:
+    name: Run CI Workflow
+    uses: ./.github/workflows/ci.yml
+    with:
+      branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
+  
+  print_version:
+    name: Print Version En Main.yaml
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print Version from CI
+        run: echo "La versión extraída es ${{ needs.ci.outputs.version }}"
+
+  cd_job:
+    name: Run CD Workflow
+    needs: [ci, print_version]
+    uses: ./.github/workflows/cd-deploy-aks.yml
+    with:
+      version: ${{ needs.ci.outputs.version }}

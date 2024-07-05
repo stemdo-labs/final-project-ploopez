@@ -42,6 +42,6 @@ jobs:
           az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
           kubelogin convert-kubeconfig -l azurecli
           kubectl apply -f kubernetes/. -n ns-plopez
-          kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/app-plopez:1.2.4 -n ns-plopez
+          kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }} -n ns-plopez
           kubectl describe svc proyectofinal-service -n ns-plopez
           kubectl get service ingress-nginx-controller --namespace=ingress-nginx
