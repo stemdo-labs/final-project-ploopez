@@ -24,18 +24,20 @@ jobs:
         id: get_version
         uses: ./.github/actions/get-version
         with:
-          branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
+          branch: ${{ inputs.branch }}
+      
+      - name: Create Version File
+        run: echo "${{ steps.get_version.outputs.version }}" > version.txt
+
+      - name: Save Version as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: version
+          path: version.txt
       
       - name: Print Version (extract version en ci.yml)
         run: echo "La version guaardada es ${{ steps.get_version.outputs.version }}"
   
-  # print_version:
-  #   needs: extract_version
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Print extracted version
-  #       run: echo "La version extraída es ${{ needs.extract_version.outputs.version }}"
-
   build_and_push:
     needs: extract_version
     runs-on: ubuntu-latest
