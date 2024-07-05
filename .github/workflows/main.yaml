@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/ci.yml
     with:
       branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
+    secrets: inherit
   
   print_version:
     name: Print Version En Main.yaml
