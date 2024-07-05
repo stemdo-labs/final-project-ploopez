@@ -15,7 +15,10 @@ jobs:
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
+
+      - name: Print variables
+        run: echo "El  valor de las variablles son El grupo de recursos ${{ vars.RESOURCE_GROUP_NAME }}, KUBERNETES_CLUSTER_NAME ${{ vars.KUBERNETES_CLUSTER_NAME }}"
+
       - name: Checkout
         uses: actions/checkout@v4
 
