@@ -34,13 +34,18 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: version
+          path: ./version
+
+      - name: List files in the directory
+        run: ls -al ./version
 
       - name: Read Version from File
         id: read_version
         run: |
-          VERSION=$(cat version/version.txt)
+          VERSION=$(cat ./version/version.txt)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "::set-output name=version::$VERSION"
+
         
   
   print_version:
