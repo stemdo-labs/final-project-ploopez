@@ -4,6 +4,10 @@ inputs:
   version:
     description: 'The version for the Docker image'
     required: true
+outputs:
+  repository:
+    description: 'The name of the ACR repository'
+    value: ${{ steps.repo.outputs.repo_name }}
 
 
 runs:
@@ -23,12 +27,14 @@ runs:
           echo "Unsupported branch: ${{ github.ref }}"
           exit 1
         fi
+        echo "::set-output name=repository::${repo_name}"
       shell: bash
     
     - name: Build and Push Docker Image
       run: |
         echo "Building Docker image with version: ${{ inputs.version }} in repository ${{ env.repo_name }} "
-        docker build -t plopez/${{ env.repo_name }}:${{ inputs.version }} aplicativo/aplicativoNuevo/.
+        # docker build -t plopez/${{ env.repo_name }}:${{ inputs.version }} aplicativo/aplicativoNuevo/.
+        docker build -t acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }} aplicativo/aplicativoNuevo/.
         docker tag plopez/${{ env.repo_name }}:${{ inputs.version }} acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }}
         az acr login --name acrplopezfp2
         docker push acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }}

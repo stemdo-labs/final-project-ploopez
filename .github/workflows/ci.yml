@@ -15,6 +15,7 @@ jobs:
 
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      repository: ${{ steps.build_and_push.outputs.repository }}
 
     steps:
       - name: Checkout
@@ -58,6 +59,18 @@ jobs:
         uses: ./.github/actions/build-and-push-docker
         with:
           version: ${{ needs.extract_version.outputs.version }}
+
+      - name: Create Repo File
+        run: echo "${{ steps.build_and_push.outputs.repository }}" > repository.txt
+      
+      - name: Save Repo_name as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: repository
+          path: repository.txt
+        
+      - name: Print Repository Name
+        run: echo "El nombre del repositorio guardado es ${{ steps.build_and_push.outputs.repository }}"
 
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }} 
