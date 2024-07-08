@@ -14,18 +14,56 @@ on:
       - develop
 
 jobs:
-  ci:
-    name: Run CI Workflow
+  # ci:
+  #   name: Run CI Workflow
+  #   uses: ./.github/workflows/ci.yml
+  #   with:
+  #     branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
+  #   secrets: inherit
+    
+  # cd_job:
+  #   name: Run CD Workflow
+  #   needs: ci
+  #   uses: ./.github/workflows/cd-deploy-aks.yml
+  #   with:
+  #     version: ${{ needs.ci.outputs.version }}
+  #     repository: ${{ needs.ci.outputs.repository }}
+  #   secrets: inherit
+
+  ci_dev:
+    name: Run CI Workflow for Dev
+    if: github.ref == 'refs/heads/develop'
     uses: ./.github/workflows/ci.yml
     with:
-      branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
+      branch: develop
+      environment: develop
     secrets: inherit
-    
-  cd_job:
-    name: Run CD Workflow
-    needs: ci
+
+  ci_prod:
+    name: Run CI Workflow for Prod
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+    with:
+      branch: main
+      environment: production
+    secrets: inherit
+
+  cd_dev:
+    name: Run CD Workflow for Dev
+    needs: ci_dev
+    if: github.ref == 'refs/heads/develop'
     uses: ./.github/workflows/cd-deploy-aks.yml
     with:
-      version: ${{ needs.ci.outputs.version }}
-      repository: ${{ needs.ci.outputs.repository }}
+      version: ${{ needs.ci_dev.outputs.version }}
+      repository: ${{ needs.ci_dev.outputs.repository }}
+    secrets: inherit
+
+  cd_prod:
+    name: Run CD Workflow for Prod
+    needs: ci_prod
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/cd-deploy-aks.yml
+    with:
+      version: ${{ needs.ci_prod.outputs.version }}
+      repository: ${{ needs.ci_prod.outputs.repository }}
     secrets: inherit
