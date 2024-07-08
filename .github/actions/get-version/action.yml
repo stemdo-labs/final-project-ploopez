@@ -26,6 +26,9 @@ runs:
             echo "No se pudo obtener la versión desde composer.json"
             exit 1
           fi
+        else
+          echo "Branch '${{ inputs.branch }}' no soportada para la extracción de versión."
+          exit 1
         fi
         echo "VERSION=${VERSION}" >> $GITHUB_ENV
         echo "::set-output name=version::${VERSION}"
