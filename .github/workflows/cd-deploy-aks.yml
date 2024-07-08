@@ -44,4 +44,6 @@ jobs:
           kubectl apply -f kubernetes/. -n ns-plopez
           kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }} -n ns-plopez
           kubectl describe svc proyectofinal-service -n ns-plopez
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
+          kubectl get pods --namespace ingress-nginx
           kubectl get service ingress-nginx-controller --namespace=ingress-nginx
