@@ -7,6 +7,9 @@ on:
       version:
         required: true
         type: string
+      repository:
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -27,7 +30,10 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Print variables
-        run: echo "El  valor de las variablles son El grupo de recursos ${{ vars.RESOURCE_GROUP_NAME }}, KUBERNETES_CLUSTER_NAME ${{ vars.KUBERNETES_CLUSTER_NAME }}"
+        run: |
+          echo "El  valor de las variables son El grupo de recursos ${{ vars.RESOURCE_GROUP_NAME }}, KUBERNETES_CLUSTER_NAME ${{ vars.KUBERNETES_CLUSTER_NAME }}"
+          echo "Version: ${{ inputs.version }}"
+          echo "Repository: ${{ inputs.repository }}"
 
 
       - name: Connection to cluster
@@ -42,7 +48,7 @@ jobs:
           az aks get-credentials --resource-group ${{ vars.RESOURCE_GROUP_NAME }} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
           kubelogin convert-kubeconfig -l azurecli
           kubectl apply -f kubernetes/. -n ns-plopez
-          kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/app-plopez:${{ inputs.version }} -n ns-plopez
+          kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/${{ inputs.repository }}:${{ inputs.version }} -n ns-plopez
           kubectl describe svc proyectofinal-service -n ns-plopez
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.3.0/deploy/static/provider/cloud/deploy.yaml
           kubectl get pods --namespace ingress-nginx
