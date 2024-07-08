@@ -4,6 +4,9 @@ inputs:
   version:
     description: 'The version for the Docker image'
     required: true
+  branch:
+    description: 'The branch name'
+    required: true
 outputs:
   repository:
     description: 'The name of the ACR repository'
@@ -19,34 +22,28 @@ runs:
     - name: Determine Docker Repository
       id: repo
       run: |
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-          echo "repo_name=app-plopez" >> $GITHUB_ENV
+        if [ "${{ inputs.branch }}" == "main" ]; then
+          REPOSITORY=stable
         elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-          echo "repo_name=releases" >> $GITHUB_ENV
+          REPOSITORY=releases
         else
-          echo "Unsupported branch: ${{ github.ref }}"
+          echo "Unsupported branch: ${{ inputs.branch }}"
           exit 1
         fi
-        # Save repository name to a file for output
-        echo "${{ env.repo_name }}" > repository.txt
+        echo "REPOSITORY=${REPOSITORY}" >> $GITHUB_ENV
+        echo "::set-output name=repository::${REPOSITORY}"
       shell: bash
 
-    - name: Set Repository Output
-      id: set_output
-      run: |
-        echo "::set-output name=repository::$(cat repository.txt)"
-      shell: bash
-      
     - name: Build and Push Docker Image
       run: |
-        echo "Building Docker image with version: ${{ inputs.version }} in repository ${{ env.repo_name }} "
-        docker build -t plopez/${{ env.repo_name }}:${{ inputs.version }} aplicativo/aplicativoNuevo/.
-        docker tag plopez/${{ env.repo_name }}:${{ inputs.version }} acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }}
+        echo "Building Docker image with version: ${{ inputs.version }} in repository ${{ env.REPOSITORY }} "
+        docker build -t plopez/${{ env.REPOSITORY }}:${{ inputs.version }} aplicativo/aplicativoNuevo/.
+        docker tag plopez/${{ env.REPOSITORY }}:${{ inputs.version }} acrplopezfp2.azurecr.io/${{ env.REPOSITORY }}:${{ inputs.version }}
         az acr login --name acrplopezfp2
-        docker push acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }}
+        docker push acrplopezfp2.azurecr.io/${{ env.REPOSITORY }}:${{ inputs.version }}
       shell: bash
 
     - name: Print Repository
-      run: echo "The repository is ${{ steps.repo.outputs.repo_name }}"
+      run: echo "The repository is ${{ steps.repo.outputs.repository }}"
       shell: bash
     

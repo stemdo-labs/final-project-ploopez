@@ -57,7 +57,7 @@ jobs:
 
   download_artifacts_repository:
     name: Download Repository Artifact
-    needs: ci
+    needs: [ci, download_artifacts_version]
     runs-on: ubuntu-latest
     
     outputs:
@@ -82,7 +82,7 @@ jobs:
 
   print_version_repository:
     name: Print Repository Name
-    needs: [ci, download_artifacts_repository]
+    needs: [ci, download_artifacts_version, download_artifacts_repository]
     runs-on: ubuntu-latest
 
     steps:
