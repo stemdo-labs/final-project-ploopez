@@ -19,7 +19,7 @@ runs:
       run: |
         if [ "${{ inputs.branch }}" == "develop" ]; then
           VERSION=$(date +'%Y%m%d%H%M%S')
-        else
+        elif [ "${{ inputs.branch }}" == "main" ];
           sudo apt-get update && sudo apt-get install -y jq
           VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
           if [ -z "$VERSION" ]; then
