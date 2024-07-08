@@ -7,6 +7,14 @@ on:
       branch:
         required: true
         type: string
+
+    outputs:
+      version:
+        description: 'Version of the image'
+        value: ${{ jobs.extract_version.outputs.version }}
+      repository:
+        description: 'Repository of the image'
+        value: ${{ jobs.build_and_push.outputs.repository }}
  
 
 jobs:
@@ -25,18 +33,9 @@ jobs:
         uses: ./.github/actions/get-version
         with:
           branch: ${{ inputs.branch }}
-      
-      - name: Create Version File
-        run: echo "${{ steps.get_version.outputs.version }}" > version.txt
 
-      - name: Save Version as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: version
-          path: version.txt
-      
-      - name: Print Version (extract version en ci.yml)
-        run: echo "La version guaardada es ${{ steps.get_version.outputs.version }}"
+      - name: Print version input (extract version)
+        run: echo "La version que se va a taggear es ${{ steps.get_version.outputs.version }}"
   
   build_and_push:
     needs: extract_version
@@ -54,9 +53,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
-      - name: Print version input (build and push docker)
-        run: echo "La version que se va a taggear es ${{ needs.extract_version.outputs.version }}"
-
       - name: Build and Push Docker Image
         id: build_and_push
         uses: ./.github/actions/build-and-push-docker
@@ -64,17 +60,16 @@ jobs:
           version: ${{ needs.extract_version.outputs.version }}
           branch: ${{ inputs.branch }}
 
-      - name: Create Repo File
-        run: echo "${{ steps.build_and_push.outputs.repository }}" > repository.txt
-      
-      - name: Save Repo_name as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: repository
-          path: repository.txt
-        
-      - name: Print Repository Name
-        run: echo "El nombre del repositorio guardado es ${{ steps.build_and_push.outputs.repository }}"
-
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }} 
+
+  resolution_of_outputs:
+    needs: [extract_version, build_and_push]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print version output (build and push)
+        run: echo "La version que se va a taggear es ${{ needs.extract_version.outputs.version }}"
+      
+      - name: Print repository output (build and push)
+        run: echo "El repositorio de la imagen es ${{ needs.build_and_push.outputs.repository }}" 
