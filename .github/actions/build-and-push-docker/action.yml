@@ -27,14 +27,16 @@ runs:
           echo "Unsupported branch: ${{ github.ref }}"
           exit 1
         fi
-        echo "${repo_name}" > repository.txt
+        # Save repository name to a file for output
+        echo "${{ env.repo_name }}" > repository.txt
       shell: bash
 
     - name: Set Repository Output
       id: set_output
-      run: echo "::set-output name=repository::$(cat repository.txt)"
+      run: |
+        echo "::set-output name=repository::$(cat repository.txt)"
       shell: bash
-    
+      
     - name: Build and Push Docker Image
       run: |
         echo "Building Docker image with version: ${{ inputs.version }} in repository ${{ env.repo_name }} "
