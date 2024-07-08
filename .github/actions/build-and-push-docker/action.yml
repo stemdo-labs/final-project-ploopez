@@ -23,9 +23,9 @@ runs:
       id: repo
       run: |
         if [ "${{ inputs.branch }}" == "main" ]; then
-          REPOSITORY=stable
-        elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
           REPOSITORY=releases
+        elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          REPOSITORY=develop
         else
           echo "Unsupported branch: ${{ inputs.branch }}"
           exit 1
@@ -43,7 +43,7 @@ runs:
         docker push acrplopezfp2.azurecr.io/${{ env.REPOSITORY }}:${{ inputs.version }}
       shell: bash
 
-    - name: Print Repository
+    - name: Print Repository in Custom Action
       run: echo "The repository is ${{ steps.repo.outputs.repository }}"
       shell: bash
     
