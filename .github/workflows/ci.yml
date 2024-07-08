@@ -15,8 +15,7 @@ jobs:
 
     outputs:
       version: ${{ steps.get_version.outputs.version }}
-      repository: ${{ steps.build_and_push.outputs.repository }}
-
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +41,10 @@ jobs:
   build_and_push:
     needs: extract_version
     runs-on: ubuntu-latest
-
+    
+    outputs:
+      repository: ${{ steps.build_and_push.outputs.repository }}
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -56,9 +58,11 @@ jobs:
         run: echo "La version que se va a taggear es ${{ needs.extract_version.outputs.version }}"
 
       - name: Build and Push Docker Image
+        id: build_and_push
         uses: ./.github/actions/build-and-push-docker
         with:
           version: ${{ needs.extract_version.outputs.version }}
+          branch: ${{ inputs.branch }}
 
       - name: Create Repo File
         run: echo "${{ steps.build_and_push.outputs.repository }}" > repository.txt
