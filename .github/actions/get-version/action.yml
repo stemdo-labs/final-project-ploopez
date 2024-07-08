@@ -19,16 +19,13 @@ runs:
       run: |
         if [ "${{ inputs.branch }}" == "develop" ]; then
           VERSION=$(date +'%Y%m%d%H%M%S')
-        elif [ "${{ inputs.branch }}" == "main" ]; then
+        else
           sudo apt-get update && sudo apt-get install -y jq
           VERSION=$(jq -r '.version' aplicativo/aplicativoNuevo/composer.json)
           if [ -z "$VERSION" ]; then
             echo "No se pudo obtener la versión desde composer.json"
             exit 1
           fi
-        else
-          echo "Branch '${{ inputs.branch }}' no soportada para la extracción de versión."
-          exit 1
         fi
         echo "VERSION=${VERSION}" >> $GITHUB_ENV
         echo "::set-output name=version::${VERSION}"
