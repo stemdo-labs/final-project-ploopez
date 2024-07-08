@@ -7,7 +7,7 @@ inputs:
 outputs:
   repository:
     description: 'The name of the ACR repository'
-    value: ${{ steps.repo.outputs.repo_name }}
+    value: ${{ steps.repo.outputs.repository }}
 
 
 runs:
@@ -27,7 +27,12 @@ runs:
           echo "Unsupported branch: ${{ github.ref }}"
           exit 1
         fi
-        echo "::set-output name=repository::${repo_name}"
+        echo "${repo_name}" > repository.txt
+      shell: bash
+
+    - name: Set Repository Output
+      id: set_output
+      run: echo "::set-output name=repository::$(cat repository.txt)"
       shell: bash
     
     - name: Build and Push Docker Image
@@ -37,5 +42,9 @@ runs:
         docker tag plopez/${{ env.repo_name }}:${{ inputs.version }} acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }}
         az acr login --name acrplopezfp2
         docker push acrplopezfp2.azurecr.io/${{ env.repo_name }}:${{ inputs.version }}
+      shell: bash
+
+    - name: Print Repository
+      run: echo "The repository is ${{ steps.repo.outputs.repo_name }}"
       shell: bash
     
