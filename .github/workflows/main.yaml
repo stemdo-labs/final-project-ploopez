@@ -80,7 +80,8 @@ jobs:
         with:
           version: ${{ needs.ci_prod.outputs.version }}
           repository: ${{ needs.ci_prod.outputs.repository }}
-          secrets: inherit
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
     
    
     
