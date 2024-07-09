@@ -94,7 +94,7 @@ jobs:
 
       - name: Set up kubectl
         run: |
-          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.KUBERNETES_CLUSTER_NAME }}
+          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
       
       - name: Create Helm Chart if not exists
         run: |
@@ -136,7 +136,7 @@ jobs:
 
       - name: Set up kubectl
         run: |
-          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.KUBERNETES_CLUSTER_NAME }}
+          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
 
       - name: Create Helm Chart if not exists
         run: |
