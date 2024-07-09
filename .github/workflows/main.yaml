@@ -76,6 +76,7 @@ jobs:
     with:
       version: ${{ needs.ci_dev.outputs.version }}
       repository: ${{ needs.ci_dev.outputs.repository }}
+      environment: develop
     secrets: inherit
 
   cd_prod:
@@ -86,5 +87,6 @@ jobs:
     with:
       version: ${{ needs.ci_prod.outputs.version }}
       repository: ${{ needs.ci_prod.outputs.repository }}
+      environment: production
     secrets: inherit
 
