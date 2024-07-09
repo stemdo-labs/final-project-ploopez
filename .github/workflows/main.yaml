@@ -62,8 +62,25 @@ jobs:
     name: Run CD Workflow for Prod
     needs: ci_prod
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/cd-deploy-aks.yml
-    with:
-      version: ${{ needs.ci_prod.outputs.version }}
-      repository: ${{ needs.ci_prod.outputs.repository }}
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Update version in composer.json
+        run: |
+          current_version=${{ needs.ci_prod.outputs.version }}
+          IFS='.' read -r major minor patch <<< "$current_version"
+          next_minor=$((minor + 1))
+          next_version="$major.$next_minor.$patch"
+          jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp && mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
+
+      - name: Run CD Workflow for Prod
+        uses: ./.github/workflows/cd-deploy-aks.yml
+        with:
+          version: ${{ needs.ci_prod.outputs.version }}
+          repository: ${{ needs.ci_prod.outputs.repository }}
+          secrets: inherit
+    
+   
+    
