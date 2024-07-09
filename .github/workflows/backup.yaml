@@ -1,4 +1,4 @@
-name: Secure Backup and Upload
+name: 9. Secure Backup and Upload
 
 on:
   workflow_dispatch: 
