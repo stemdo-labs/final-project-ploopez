@@ -14,21 +14,6 @@ on:
       - develop
 
 jobs:
-  # ci:
-  #   name: Run CI Workflow
-  #   uses: ./.github/workflows/ci.yml
-  #   with:
-  #     branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
-  #   secrets: inherit
-    
-  # cd_job:
-  #   name: Run CD Workflow
-  #   needs: ci
-  #   uses: ./.github/workflows/cd-deploy-aks.yml
-  #   with:
-  #     version: ${{ needs.ci.outputs.version }}
-  #     repository: ${{ needs.ci.outputs.repository }}
-  #   secrets: inherit
 
   ci_dev:
     name: Run CI Workflow for Dev
@@ -68,25 +53,100 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
+  # cd_dev:
+  #   name: Run CD Workflow for Dev
+  #   needs: ci_dev
+  #   if: github.ref == 'refs/heads/develop'
+  #   uses: ./.github/workflows/cd-deploy-aks.yml
+  #   with:
+  #     version: ${{ needs.ci_dev.outputs.version }}
+  #     repository: ${{ needs.ci_dev.outputs.repository }}
+  #     environment: develop
+  #   secrets: inherit
+
+  # cd_prod:
+  #   name: Run CD Workflow for Prod
+  #   needs: [ci_prod, update_version]
+  #   if: github.ref == 'refs/heads/main'
+  #   uses: ./.github/workflows/cd-deploy-aks.yml
+  #   with:
+  #     version: ${{ needs.ci_prod.outputs.version }}
+  #     repository: ${{ needs.ci_prod.outputs.repository }}
+  #     environment: production
+  #   secrets: inherit
+
   cd_dev:
     name: Run CD Workflow for Dev
     needs: ci_dev
     if: github.ref == 'refs/heads/develop'
-    uses: ./.github/workflows/cd-deploy-aks.yml
-    with:
-      version: ${{ needs.ci_dev.outputs.version }}
-      repository: ${{ needs.ci_dev.outputs.repository }}
-      environment: develop
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+
+      - name: Authenticate with Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up kubectl
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.KUBERNETES_CLUSTER_NAME }}
+      
+      - name: Create Helm Chart if not exists
+        run: |
+          if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
+            helm create aplicativo/aplicativoNuevo/chart
+          fi
+
+      - name: Run CD Workflow for Dev
+        run: |
+          helm upgrade --install app-plopez-dev aplicativo/aplicativoNuevo/chart \
+            --namespace development \
+            --values aplicativo/aplicativoNuevo/chart/values-dev.yaml \
+            --set image.tag=${{ needs.ci_dev.outputs.version }}
 
   cd_prod:
     name: Run CD Workflow for Prod
-    needs: [ci_prod, update_version]
+    needs: ci_prod
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/cd-deploy-aks.yml
-    with:
-      version: ${{ needs.ci_prod.outputs.version }}
-      repository: ${{ needs.ci_prod.outputs.repository }}
-      environment: production
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Update version in composer.json
+        run: |
+          current_version=${{ needs.ci_prod.outputs.version }}
+          IFS='.' read -r major minor patch <<< "$current_version"
+          next_minor=$((minor + 1))
+          next_version="$major.$next_minor.$patch"
+          jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp && mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNovo/composer.json
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+
+      - name: Authenticate with Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up kubectl
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP_NAME }} --name ${{ env.KUBERNETES_CLUSTER_NAME }}
+
+      - name: Create Helm Chart if not exists
+        run: |
+          if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
+            helm create aplicativo/aplicativoNuevo/chart
+          fi
+
+      - name: Run CD Workflow for Prod
+        run: |
+          helm upgrade --install app-plopez-prod aplicativo/aplicativoNuevo/chart \
+            --namespace production \
+            --values aplicativo/aplicativoNovo/chart/values-prod.yaml \
+            --set image.tag=${{ needs.ci_prod.outputs.version }}
