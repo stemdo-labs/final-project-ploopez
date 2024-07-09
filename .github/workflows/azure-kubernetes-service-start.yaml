@@ -1,4 +1,4 @@
-name: 'Start AKS and create Secret of ACR'
+name: '3. Start AKS and create Secret of ACR'
 
 on:  workflow_dispatch
 
