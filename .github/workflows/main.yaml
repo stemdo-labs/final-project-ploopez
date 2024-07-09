@@ -53,136 +53,136 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
-  # cd_dev:
-  #   name: Run CD Workflow for Dev
-  #   needs: ci_dev
-  #   if: github.ref == 'refs/heads/develop'
-  #   uses: ./.github/workflows/cd-deploy-aks.yml
-  #   with:
-  #     version: ${{ needs.ci_dev.outputs.version }}
-  #     repository: ${{ needs.ci_dev.outputs.repository }}
-  #     environment: develop
-  #   secrets: inherit
-
-  # cd_prod:
-  #   name: Run CD Workflow for Prod
-  #   needs: [ci_prod, update_version]
-  #   if: github.ref == 'refs/heads/main'
-  #   uses: ./.github/workflows/cd-deploy-aks.yml
-  #   with:
-  #     version: ${{ needs.ci_prod.outputs.version }}
-  #     repository: ${{ needs.ci_prod.outputs.repository }}
-  #     environment: production
-  #   secrets: inherit
-
   cd_dev:
     name: Run CD Workflow for Dev
     needs: ci_dev
     if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Verify Repository Structure
-        run: |
-          echo "Listing root directory:"
-          ls -la
-          echo "Listing 'aplicativo' directory:"
-          ls -la aplicativo
-          echo "Listing 'aplicativo/aplicativoNuevo' directory:"
-          ls -la aplicativo/aplicativoNuevo
-          echo "Listing 'aplicativo/aplicativoNuevo/chart' directory:"
-          ls -la aplicativo/aplicativoNuevo/chart || echo "Directory 'aplicativo/aplicativoNuevo/chart' does not exist"
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-
-      - name: Authenticate with Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Set up kubectl
-        run: |
-          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
-      
-      - name: Create Helm Chart if not exists
-        run: |
-          if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
-            mkdir -p aplicativo/aplicativoNuevo/chart
-            helm create aplicativo/aplicativoNuevo/chart
-          fi
-      
-      - name: Create values-dev.yaml
-        run: |
-          echo "Creating values-dev.yaml"
-          cat <<EOF > aplicativo/aplicativoNuevo/chart/values-dev.yaml
-          replicaCount: 1
-          image:
-            repository: "${{ secrets.ACR_NAME }}.azurecr.io/${{ needs.ci_dev.outputs.repository }}" 
-            tag: "${{ needs.ci_dev.outputs.version }}"
-          EOF
-
-      - name: Verify values-dev.yaml creation
-        run: |
-          echo "Listing 'aplicativo/aplicativoNuevo/chart' directory after creation:"
-          ls -la aplicativo/aplicativoNuevo/chart
-          echo "Listing 'aplicativo/aplicativoNuevo/chart/values-dev.yaml' file:"
-          ls -la aplicativo/aplicativoNuevo/chart/values-dev.yaml || echo "File 'values-dev.yaml' does not exist"
-
-      - name: Run CD Workflow for Dev
-        run: |
-          helm upgrade --install app-plopez aplicativo/aplicativoNuevo/chart \
-            --namespace ns-plopez \
-            --values aplicativo/aplicativoNuevo/chart/values-dev.yaml \
-            --set image.tag=${{ needs.ci_dev.outputs.version }}
-
+    uses: ./.github/workflows/cd-deploy-aks.yml
+    with:
+      version: ${{ needs.ci_dev.outputs.version }}
+      repository: ${{ needs.ci_dev.outputs.repository }}
+      environment: develop
+    secrets: inherit
 
   cd_prod:
     name: Run CD Workflow for Prod
-    needs: ci_prod
+    needs: [ci_prod, update_version]
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    uses: ./.github/workflows/cd-deploy-aks.yml
+    with:
+      version: ${{ needs.ci_prod.outputs.version }}
+      repository: ${{ needs.ci_prod.outputs.repository }}
+      environment: production
+    secrets: inherit
 
-      - name: Update version in composer.json
-        run: |
-          current_version=${{ needs.ci_prod.outputs.version }}
-          IFS='.' read -r major minor patch <<< "$current_version"
-          next_minor=$((minor + 1))
-          next_version="$major.$next_minor.$patch"
-          jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp && mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
+  # cd_dev:
+  #   name: Run CD Workflow for Dev
+  #   needs: ci_dev
+  #   if: github.ref == 'refs/heads/develop'
+  #   runs-on: ubuntu-latest
+  #   steps:
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-
-      - name: Authenticate with Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Set up kubectl
-        run: |
-          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
       
-      - name: Verify Chart Directory
-        run: |
-          ls -la aplicativo/aplicativoNuevo/chart
-          ls -la aplicativo/aplicativoNuevo/chart/values-prod.yaml
+  #     - name: Verify Repository Structure
+  #       run: |
+  #         echo "Listing root directory:"
+  #         ls -la
+  #         echo "Listing 'aplicativo' directory:"
+  #         ls -la aplicativo
+  #         echo "Listing 'aplicativo/aplicativoNuevo' directory:"
+  #         ls -la aplicativo/aplicativoNuevo
+  #         echo "Listing 'aplicativo/aplicativoNuevo/chart' directory:"
+  #         ls -la aplicativo/aplicativoNuevo/chart || echo "Directory 'aplicativo/aplicativoNuevo/chart' does not exist"
 
-      - name: Create Helm Chart if not exists
-        run: |
-          if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
-            helm create aplicativo/aplicativoNuevo/chart
-          fi
+  #     - name: Set up Helm
+  #       uses: azure/setup-helm@v1
 
-      - name: Run CD Workflow for Prod
-        run: |
-          helm upgrade --install app-plopez aplicativo/aplicativoNuevo/chart \
-            --namespace ns-plopez \
-            --values aplicativo/aplicativoNuevo/chart/values-prod.yaml \
-            --set image.tag=${{ needs.ci_prod.outputs.version }}
+  #     - name: Authenticate with Azure
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #     - name: Set up kubectl
+  #       run: |
+  #         az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+      
+  #     - name: Create Helm Chart if not exists
+  #       run: |
+  #         if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
+  #           mkdir -p aplicativo/aplicativoNuevo/chart
+  #           helm create aplicativo/aplicativoNuevo/chart
+  #         fi
+      
+  #     - name: Create values-dev.yaml
+  #       run: |
+  #         echo "Creating values-dev.yaml"
+  #         cat <<EOF > aplicativo/aplicativoNuevo/chart/values-dev.yaml
+  #         replicaCount: 1
+  #         image:
+  #           repository: "${{ secrets.ACR_NAME }}.azurecr.io/${{ needs.ci_dev.outputs.repository }}" 
+  #           tag: "${{ needs.ci_dev.outputs.version }}"
+  #         EOF
+
+  #     - name: Verify values-dev.yaml creation
+  #       run: |
+  #         echo "Listing 'aplicativo/aplicativoNuevo/chart' directory after creation:"
+  #         ls -la aplicativo/aplicativoNuevo/chart
+  #         echo "Listing 'aplicativo/aplicativoNuevo/chart/values-dev.yaml' file:"
+  #         ls -la aplicativo/aplicativoNuevo/chart/values-dev.yaml || echo "File 'values-dev.yaml' does not exist"
+
+  #     - name: Run CD Workflow for Dev
+  #       run: |
+  #         helm upgrade --install app-plopez aplicativo/aplicativoNuevo/chart \
+  #           --namespace ns-plopez \
+  #           --values aplicativo/aplicativoNuevo/chart/values-dev.yaml \
+  #           --set image.tag=${{ needs.ci_dev.outputs.version }}
+
+
+  # cd_prod:
+  #   name: Run CD Workflow for Prod
+  #   needs: ci_prod
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Update version in composer.json
+  #       run: |
+  #         current_version=${{ needs.ci_prod.outputs.version }}
+  #         IFS='.' read -r major minor patch <<< "$current_version"
+  #         next_minor=$((minor + 1))
+  #         next_version="$major.$next_minor.$patch"
+  #         jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp && mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
+
+  #     - name: Set up Helm
+  #       uses: azure/setup-helm@v1
+
+  #     - name: Authenticate with Azure
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #     - name: Set up kubectl
+  #       run: |
+  #         az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+      
+  #     - name: Verify Chart Directory
+  #       run: |
+  #         ls -la aplicativo/aplicativoNuevo/chart
+  #         ls -la aplicativo/aplicativoNuevo/chart/values-prod.yaml
+
+  #     - name: Create Helm Chart if not exists
+  #       run: |
+  #         if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
+  #           helm create aplicativo/aplicativoNuevo/chart
+  #         fi
+
+  #     - name: Run CD Workflow for Prod
+  #       run: |
+  #         helm upgrade --install app-plopez aplicativo/aplicativoNuevo/chart \
+  #           --namespace ns-plopez \
+  #           --values aplicativo/aplicativoNuevo/chart/values-prod.yaml \
+  #           --set image.tag=${{ needs.ci_prod.outputs.version }}
