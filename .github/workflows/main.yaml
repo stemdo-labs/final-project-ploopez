@@ -114,14 +114,24 @@ jobs:
             mkdir -p aplicativo/aplicativoNuevo/chart
             helm create aplicativo/aplicativoNuevo/chart
           fi
+      
+      - name: Create values-dev.yaml
+        run: |
+          echo "Creating values-dev.yaml"
+          cat <<EOF > aplicativo/aplicativoNuevo/chart/values-dev.yaml
+          replicaCount: 1
+          image:
+            repository: "${{ secrets.ACR_NAME }}.azurecr.io/${{ needs.ci_dev.outputs.repository }}" 
+            tag: "${{ needs.ci_dev.outputs.version }}"
+          EOF
 
-      - name: Verify Chart Directory After Creation
+      - name: Verify values-dev.yaml creation
         run: |
           echo "Listing 'aplicativo/aplicativoNuevo/chart' directory after creation:"
           ls -la aplicativo/aplicativoNuevo/chart
           echo "Listing 'aplicativo/aplicativoNuevo/chart/values-dev.yaml' file:"
           ls -la aplicativo/aplicativoNuevo/chart/values-dev.yaml || echo "File 'values-dev.yaml' does not exist"
-  
+
       - name: Run CD Workflow for Dev
         run: |
           helm upgrade --install app-plopez-dev aplicativo/aplicativoNuevo/chart \
