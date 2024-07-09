@@ -1,4 +1,4 @@
-name: 'Terraform Destroy'
+name: '7. Terraform Destroy'
 
 on:
   workflow_dispatch:
