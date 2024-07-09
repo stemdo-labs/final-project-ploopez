@@ -1,4 +1,4 @@
-name: Ansible Playbook
+name: 2. Ansible Playbook
 
 on: 
   workflow_dispatch:
