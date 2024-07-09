@@ -20,6 +20,7 @@ jobs:
   deploy:
     name: 'Azure Kubernetes Service Deployment'
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     
     defaults:
       run:
@@ -35,10 +36,10 @@ jobs:
 
       - name: Print variables
         run: |
-          echo "El  valor de las variables son El grupo de recursos ${{ vars.RESOURCE_GROUP_NAME }}, KUBERNETES_CLUSTER_NAME ${{ vars.KUBERNETES_CLUSTER_NAME }}"
-          echo "Version: ${{ inputs.version }}"
-          echo "Repository: ${{ inputs.repository }}"
-          echo "Environment: ${{ inputs.environment }}"
+            echo "El valor de las variables son El grupo de recursos ${{ env.RESOURCE_GROUP_NAME }}, KUBERNETES_CLUSTER_NAME ${{ env.KUBERNETES_CLUSTER_NAME }}"
+            echo "Version: ${{ inputs.version }}"
+            echo "Repository: ${{ inputs.repository }}"
+            echo "Environment: ${{ inputs.environment }}"
 
 
       - name: Connection to cluster
@@ -50,7 +51,7 @@ jobs:
           sudo apt-get install build-essential
           brew install Azure/kubelogin/kubelogin
           az account set --subscription 86f76907-b9d5-46fa-a39d-aff8432a1868
-          az aks get-credentials --resource-group ${{vars.RESOURCE_GROUP_NAME}} --name ${{ vars.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+          az aks get-credentials --resource-group ${{env.RESOURCE_GROUP_NAME}} --name ${{ env.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
           kubelogin convert-kubeconfig -l azurecli
           kubectl apply -f kubernetes/. -n ns-plopez
           kubectl set image deployment/proyectofinal acrplopez=acrplopezfp2.azurecr.io/${{ inputs.repository }}:${{ inputs.version }} -n ns-plopez
