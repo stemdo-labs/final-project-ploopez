@@ -96,6 +96,16 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
       
+      - name: Verify Chart Directory
+        run: |
+          ls -la aplicativo/aplicativoNuevo/chart
+          ls -la aplicativo/aplicativoNuevo/chart/values-dev.yaml
+      
+      - name: Verify Chart Directory
+        run: |
+          ls -la aplicativo/aplicativoNovo/chart
+          ls -la aplicativo/aplicativoNovo/chart/values-prod.yaml
+      
       - name: Create Helm Chart if not exists
         run: |
           if [ ! -d "aplicativo/aplicativoNuevo/chart" ]; then
@@ -137,6 +147,11 @@ jobs:
       - name: Set up kubectl
         run: |
           az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP_NAME }} --name ${{ secrets.KUBERNETES_CLUSTER_NAME }} --overwrite-existing
+      
+      - name: Verify Chart Directory
+        run: |
+          ls -la aplicativo/aplicativoNovo/chart
+          ls -la aplicativo/aplicativoNovo/chart/values-prod.yaml
 
       - name: Create Helm Chart if not exists
         run: |
