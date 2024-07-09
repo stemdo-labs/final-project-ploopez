@@ -105,7 +105,7 @@ jobs:
       - name: Run CD Workflow for Dev
         run: |
           helm upgrade --install app-plopez-dev aplicativo/aplicativoNuevo/chart \
-            --namespace development \
+            --namespace ns-plopez \
             --values aplicativo/aplicativoNuevo/chart/values-dev.yaml \
             --set image.tag=${{ needs.ci_dev.outputs.version }}
 
@@ -147,6 +147,6 @@ jobs:
       - name: Run CD Workflow for Prod
         run: |
           helm upgrade --install app-plopez-prod aplicativo/aplicativoNuevo/chart \
-            --namespace production \
+            --namespace ns-plopez \
             --values aplicativo/aplicativoNovo/chart/values-prod.yaml \
             --set image.tag=${{ needs.ci_prod.outputs.version }}
