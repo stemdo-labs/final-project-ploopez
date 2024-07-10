@@ -26,25 +26,25 @@ jobs:
       environment: develop
     secrets: inherit
 
-  ci_prod:
-    name: Run CI Workflow for Prod
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/ci.yml
-    with:
-      branch: main
-      environment: production
-    secrets: inherit
-
-  # cd_dev:
-  #   name: Run CD Workflow for Dev
-  #   needs: ci_dev
-  #   if: github.ref == 'refs/heads/develop'
-  #   uses: ./.github/workflows/cd-deploy-aks.yml
+  # ci_prod:
+  #   name: Run CI Workflow for Prod
+  #   if: github.ref == 'refs/heads/main'
+  #   uses: ./.github/workflows/ci.yml
   #   with:
-  #     version: ${{ needs.ci_dev.outputs.version }}
-  #     repository: ${{ needs.ci_dev.outputs.repository }}
-  #     environment: develop
+  #     branch: main
+  #     environment: production
   #   secrets: inherit
+
+  cd_dev:
+    name: Run CD Workflow for Dev
+    needs: ci_dev
+    if: github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/cd-deploy-aks.yml
+    with:
+      version: ${{ needs.ci_dev.outputs.version }}
+      repository: ${{ needs.ci_dev.outputs.repository }}
+      environment: develop
+    secrets: inherit
 
   # cd_prod:
   #   name: Run CD Workflow for Prod
