@@ -9,6 +9,7 @@ on:
 
 
 jobs:
+
   ci_prod:
     name: Run CI Workflow for Dev
     uses: ./.github/workflows/ci.yml
@@ -29,6 +30,7 @@ jobs:
            
   recreate_develop:
     name: Recreate Develop Branch from Main
+    needs: cd_prod
     runs-on: ubuntu-latest
     permissions:
       contents: write
