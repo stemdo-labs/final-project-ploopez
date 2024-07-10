@@ -61,39 +61,11 @@ jobs:
           git branch -d develop
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-  update_version:
-    name: Update Version in Composer JSON
-    if: github.event.pull_request.merged == true
-    needs: merge_and_delete_branch
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Update version in composer.json
-        run: |
-          current_version=${{ needs.ci_prod.outputs.version }}
-          IFS='.' read -r major minor patch <<< "$current_version"
-          next_minor=$((minor + 1))
-          next_version="$major.$next_minor.$patch"
-          jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp
-          mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNovo/composer.json
-
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add aplicativo/aplicativoNovo/composer.json
-          git commit -m "Update version to $next_version"
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-
+  
   recreate_develop:
     name: Recreate Develop Branch from Main
     if: github.event.pull_request.merged == true
-    needs: update_version
+    needs: merge_and_delete_branch
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -106,3 +78,35 @@ jobs:
           git push origin develop
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+  update_version:
+    name: Update Version in Composer JSON
+    if: github.event.pull_request.merged == true
+    needs: recreate_develop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: develop
+
+      - name: Update version in composer.json
+        run: |
+          current_version=${{ needs.ci_prod.outputs.version }}
+          IFS='.' read -r major minor patch <<< "$current_version"
+          next_minor=$((minor + 1))
+          next_version="$major.$next_minor.$patch"
+          jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp
+          mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add aplicativo/aplicativoNuevo/composer.json
+          git commit -m "Update version to $next_version"
+          git push origin develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+  
