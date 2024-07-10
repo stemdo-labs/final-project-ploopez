@@ -16,10 +16,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Run CI pipeline for production
-        run: echo "Running CI pipeline for main"
-        # Aquí va tu lógica de CI para main
-
+        
+      - name: Run CI Workflow for Production
+        uses: ./.github/workflows/ci.yml
+        with:
+          environment: production
+        env:
+          GITHUB_TOKEN: ${{ secrets.AZURE_CREDENTIALS }}
+          
   cd_prod:
     name: Run CD Workflow for Prod
     needs: ci_prod
@@ -27,10 +31,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Deploy to Production
-        run: echo "Deploying to production environment"
-        # Aquí va tu lógica de CD para producción
 
+      - name: Deploy to Production
+        uses: ./.github/workflows/cd-deploy-aks.yml
+        with:
+          version: ${{ needs.ci_prod.outputs.version }}
+          repository: ${{ needs.ci_prod.outputs.repository }}
+          environment: production
+        env:
+          GITHUB_TOKEN: ${{ secrets.AZURE_CREDENTIALS }}
+          
   merge_and_delete_branch:
     name: Merge Develop to Main and Delete Develop
     needs: cd_prod
