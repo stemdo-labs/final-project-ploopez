@@ -3,10 +3,12 @@ name: 4. Main Workflow CI/CD
 on: 
   workflow_dispatch:
   pull_request:
-    types:
-      - closed
-    branches: 
+    branches:
       - main
+    types:
+      - opened
+      - synchronize
+      - closed
     paths:
       - 'aplicativo/aplicativoNuevo/**'
   push:
@@ -14,21 +16,6 @@ on:
       - develop
 
 jobs:
-  # ci:
-  #   name: Run CI Workflow
-  #   uses: ./.github/workflows/ci.yml
-  #   with:
-  #     branch: ${{ github.ref == 'refs/heads/develop' && 'develop' || 'main' }}
-  #   secrets: inherit
-    
-  # cd_job:
-  #   name: Run CD Workflow
-  #   needs: ci
-  #   uses: ./.github/workflows/cd-deploy-aks.yml
-  #   with:
-  #     version: ${{ needs.ci.outputs.version }}
-  #     repository: ${{ needs.ci.outputs.repository }}
-  #   secrets: inherit
 
   ci_dev:
     name: Run CI Workflow for Dev
