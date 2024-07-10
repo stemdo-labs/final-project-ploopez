@@ -1,16 +1,16 @@
-name: 4. Main Workflow CI/CD
+name: 4.1 Main Workflow CI/CD for Develop
 
 on: 
   workflow_dispatch:
-  pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - synchronize
-      - closed
-    paths:
-      - 'aplicativo/aplicativoNuevo/**'
+  # pull_request:
+  #   branches:
+  #     - main
+  #   types:
+  #     - opened
+  #     - synchronize
+  #     - closed
+  #   paths:
+  #     - 'aplicativo/aplicativoNuevo/**'
   push:
     branches:
       - develop
@@ -35,101 +35,101 @@ jobs:
       environment: production
     secrets: inherit
 
-  cd_dev:
-    name: Run CD Workflow for Dev
-    needs: ci_dev
-    if: github.ref == 'refs/heads/develop'
-    uses: ./.github/workflows/cd-deploy-aks.yml
-    with:
-      version: ${{ needs.ci_dev.outputs.version }}
-      repository: ${{ needs.ci_dev.outputs.repository }}
-      environment: develop
-    secrets: inherit
+  # cd_dev:
+  #   name: Run CD Workflow for Dev
+  #   needs: ci_dev
+  #   if: github.ref == 'refs/heads/develop'
+  #   uses: ./.github/workflows/cd-deploy-aks.yml
+  #   with:
+  #     version: ${{ needs.ci_dev.outputs.version }}
+  #     repository: ${{ needs.ci_dev.outputs.repository }}
+  #     environment: develop
+  #   secrets: inherit
 
-  cd_prod:
-    name: Run CD Workflow for Prod
-    needs: ci_prod
-    if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/cd-deploy-aks.yml
-    with:
-      version: ${{ needs.ci_prod.outputs.version }}
-      repository: ${{ needs.ci_prod.outputs.repository }}
-      environment: production
-    secrets: inherit
+  # cd_prod:
+  #   name: Run CD Workflow for Prod
+  #   needs: ci_prod
+  #   if: github.ref == 'refs/heads/main'
+  #   uses: ./.github/workflows/cd-deploy-aks.yml
+  #   with:
+  #     version: ${{ needs.ci_prod.outputs.version }}
+  #     repository: ${{ needs.ci_prod.outputs.repository }}
+  #     environment: production
+  #   secrets: inherit
 
-  merge_and_delete_branch:
-    name: Merge Develop to Main and Delete Develop
-    needs: cd_prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: main
+  # merge_and_delete_branch:
+  #   name: Merge Develop to Main and Delete Develop
+  #   needs: cd_prod
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+  #       with:
+  #         ref: main
 
-      - name: Fetch all branches
-        run: git fetch --all
+  #     - name: Fetch all branches
+  #       run: git fetch --all
 
-      - name: Checkout develop branch
-        run: git checkout develop
+  #     - name: Checkout develop branch
+  #       run: git checkout develop
 
-      - name: Merge develop into main
-        run: |
-          git checkout main
-          git merge develop
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+  #     - name: Merge develop into main
+  #       run: |
+  #         git checkout main
+  #         git merge develop
+  #         git push origin main
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-      - name: Delete develop branch
-        run: |
-          git push origin --delete develop
-          git branch -d develop
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+  #     - name: Delete develop branch
+  #       run: |
+  #         git push origin --delete develop
+  #         git branch -d develop
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
-  update_version:
-    name: Update Version in Composer JSON
-    needs: merge_and_delete_branch
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # update_version:
+  #   name: Update Version in Composer JSON
+  #   needs: merge_and_delete_branch
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Update version in composer.json
-        run: |
-          current_version=${{ needs.ci_prod.outputs.version }}
-          IFS='.' read -r major minor patch <<< "$current_version"
-          next_minor=$((minor + 1))
-          next_version="$major.$next_minor.$patch"
-          jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp
-          mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
+  #     - name: Update version in composer.json
+  #       run: |
+  #         current_version=${{ needs.ci_prod.outputs.version }}
+  #         IFS='.' read -r major minor patch <<< "$current_version"
+  #         next_minor=$((minor + 1))
+  #         next_version="$major.$next_minor.$patch"
+  #         jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp
+  #         mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
 
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add aplicativo/aplicativoNuevo/composer.json
-          git commit -m "Update version to $next_version"
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+  #     - name: Commit and push changes
+  #       run: |
+  #         git config --global user.name 'GitHub Actions'
+  #         git config --global user.email 'actions@github.com'
+  #         git add aplicativo/aplicativoNuevo/composer.json
+  #         git commit -m "Update version to $next_version"
+  #         git push origin main
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
 
-  recreate_develop:
-    name: Recreate Develop Branch from Main
-    needs: update_version
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  # recreate_develop:
+  #   name: Recreate Develop Branch from Main
+  #   needs: update_version
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Create develop branch from main
-        run: |
-          git checkout -b develop
-          git push origin develop
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+  #     - name: Create develop branch from main
+  #       run: |
+  #         git checkout -b develop
+  #         git push origin develop
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
   # update_version:
   #   name: Update Version in Composer JSON
