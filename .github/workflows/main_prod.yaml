@@ -39,35 +39,38 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+
       - name: Recreating dev branch
         run: |
           
           git push origin --delete develop
           git checkout -b develop main
-
-      - name: Update version in composer.json
+      
+      - name: Display current version
         run: |
           echo "Current version:"
           jq -r .version aplicativo/aplicativoNuevo/composer.json
+
+      - name: Update version in composer.json
+        run: |
           version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
-
           echo "New version: $new_version"
-          sed -i'' -e "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
+
+          jq --arg new_version "$new_version" '.version = $new_version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer_tmp.json
+          mv aplicativo/aplicativoNuevo/composer_tmp.json aplicativo/aplicativoNuevo/composer.json
           
           echo "Updated version in composer.json:"
           jq -r .version aplicativo/aplicativoNuevo/composer.json
           
+      - name: Commit and push changes
+        run: |
           git config --global user.email "plopez@stemdo.io"
           git config --global user.name "ploopez"
-
+            
           git add aplicativo/aplicativoNuevo/composer.json
           if ! git diff --staged --quiet; then
             git commit -m "Updated version to $new_version"
             git push --set-upstream origin develop
           else
             echo "No changes to commit."
-          fi
-          
-
-  
