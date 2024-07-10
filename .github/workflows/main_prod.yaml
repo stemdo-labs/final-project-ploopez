@@ -11,35 +11,22 @@ on:
 
 jobs:
   ci_prod:
-    name: Run CI Workflow for Prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Run CI Workflow for Production
-        uses: ./.github/workflows/ci.yml
-        with:
-          environment: production
-        env:
-          GITHUB_TOKEN: ${{ secrets.AZURE_CREDENTIALS }}
+    name: Run CI Workflow for Dev
+    if: github.ref == 'refs/heads/develop'
+    uses: ./.github/workflows/ci.yml
+    with:
+      environment: production
+    secrets: inherit
           
   cd_prod:
     name: Run CD Workflow for Prod
     needs: ci_prod
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy to Production
-        uses: ./.github/workflows/cd-deploy-aks.yml
-        with:
-          version: ${{ needs.ci_prod.outputs.version }}
-          repository: ${{ needs.ci_prod.outputs.repository }}
-          environment: production
-        env:
-          GITHUB_TOKEN: ${{ secrets.AZURE_CREDENTIALS }}
+    uses: ./.github/workflows/cd-deploy-aks.yml
+    with:
+      version: ${{ needs.ci_prod.outputs.version }}
+      repository: ${{ needs.ci_prod.outputs.repository }}
+      environment: production
+    secrets: inherit
           
   merge_and_delete_branch:
     name: Merge Develop to Main and Delete Develop
