@@ -36,6 +36,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Recreating dev branch
         run: |
           
@@ -44,14 +47,27 @@ jobs:
 
       - name: Update version in composer.json
         run: |
+          echo "Current version:"
+          jq -r .version aplicativo/aplicativoNuevo/composer.json
           version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
+
+          echo "New version: $new_version"
           sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
+
+          echo "Updated version in composer.json:"
+          jq -r .version aplicativo/aplicativoNuevo/composer.json
+          
           git config --global user.email "plopez@stemdo.io"
           git config --global user.name "ploopez"
+
           git add aplicativo/aplicativoNuevo/composer.json
-          git commit -m "Updated version to $new_version"
-          git push --set-upstream origin develop
+          if ! git diff --staged --quiet; then
+            git commit -m "Updated version to $new_version"
+            git push --set-upstream origin develop
+          else
+            echo "No changes to commit."
+          fi
           
 
   
