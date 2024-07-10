@@ -76,11 +76,15 @@ jobs:
           git checkout main
           git merge develop
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Delete develop branch
         run: |
           git push origin --delete develop
           git branch -d develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
   update_version:
     name: Update Version in Composer JSON
@@ -106,6 +110,9 @@ jobs:
           git add aplicativo/aplicativoNuevo/composer.json
           git commit -m "Update version to $next_version"
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
 
   recreate_develop:
     name: Recreate Develop Branch from Main
@@ -119,6 +126,8 @@ jobs:
         run: |
           git checkout -b develop
           git push origin develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
   # update_version:
   #   name: Update Version in Composer JSON
