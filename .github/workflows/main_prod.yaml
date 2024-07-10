@@ -6,8 +6,7 @@ on:
       - main
     types:
       - closed
-    paths:
-      - 'aplicativo/aplicativoNuevo/**'
+
 
 jobs:
   ci_prod:
