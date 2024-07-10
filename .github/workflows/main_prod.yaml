@@ -27,33 +27,20 @@ jobs:
       repository: ${{ needs.ci_prod.outputs.repository }}
       environment: production
     secrets: inherit
-           
-  recreate_develop:
-    name: Recreate Develop Branch from Main
+          
+  update_version:
     needs: cd_prod
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Create develop branch from main
+      - name: Recreating dev branch
         run: |
+          
           git push origin --delete develop
           git checkout -b develop main
-
-  update_version:
-    name: Update Version in Composer JSON
-    needs: recreate_develop
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: develop
 
       - name: Update version in composer.json
         run: |
