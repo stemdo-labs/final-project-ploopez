@@ -9,7 +9,9 @@ table{
     border-spacing: 6px;
 }
 th {
+
     background-color: green;color: pink;
+
     font-size: 1.3em; 
     padding: 5px;
 }
