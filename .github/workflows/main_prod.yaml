@@ -53,8 +53,8 @@ jobs:
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
 
           echo "New version: $new_version"
-          sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
-
+          sed -i'' -e "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
+          
           echo "Updated version in composer.json:"
           jq -r .version aplicativo/aplicativoNuevo/composer.json
           
