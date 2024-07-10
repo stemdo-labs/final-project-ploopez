@@ -26,11 +26,36 @@ jobs:
       repository: ${{ needs.ci_prod.outputs.repository }}
       environment: production
     secrets: inherit
+          
+  merge_and_delete_branch:
+    name: Merge Develop to Main and Delete Develop
+    needs: cd_prod
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-            
+      - name: Merge develop into main
+        run: |
+          git fetch origin develop
+          git checkout main
+          git merge origin/develop --allow-unrelated-histories
+          git push origin main  
+
+      - name: Delete develop branch
+        run: |
+          git push origin --delete develop
+          git branch -d develop
+
+  
   recreate_develop:
     name: Recreate Develop Branch from Main
+    needs: merge_and_delete_branch
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,6 +72,8 @@ jobs:
     name: Update Version in Composer JSON
     needs: recreate_develop
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -69,7 +96,6 @@ jobs:
           git add aplicativo/aplicativoNuevo/composer.json
           git commit -m "Update version to $next_version"
           git push origin develop
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
 
   
