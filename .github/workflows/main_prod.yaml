@@ -55,18 +55,18 @@ jobs:
 
       - name: Update version in composer.json
         run: |
+          git config --global user.email "plopez@stemdo.io"
+          git config --global user.name "ploopez"
           current_version=${{ needs.ci_prod.outputs.version }}
           IFS='.' read -r major minor patch <<< "$current_version"
           next_minor=$((minor + 1))
           next_version="$major.$next_minor.$patch"
           jq --arg version "$next_version" '.version = $version' aplicativo/aplicativoNuevo/composer.json > aplicativo/aplicativoNuevo/composer.json.tmp
           mv aplicativo/aplicativoNuevo/composer.json.tmp aplicativo/aplicativoNuevo/composer.json
-
-      - name: Commit and push changes
-        run: |
-          git add aplicativo/aplicativoNuevo/composer.json
-          git commit -m "Update version to $next_version"
-          git push origin develop
-
+          git add aplicativo/aplicativoNuevo//composer.json
+          git commit -m "New version to $next_version"
+        
+        
+          
 
   
