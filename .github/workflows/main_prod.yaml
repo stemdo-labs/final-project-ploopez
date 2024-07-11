@@ -77,9 +77,10 @@ jobs:
           version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
           echo "Updating version from $version to $new_version"
-          sed -i -e "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
+          sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
       
           echo "Verifying changes in composer.json:"
+          echo "Modified composer.json:"
           cat aplicativo/aplicativoNuevo/composer.json
       
           #if ! git diff --staged --quiet; then
