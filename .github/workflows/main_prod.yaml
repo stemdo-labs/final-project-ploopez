@@ -84,6 +84,7 @@ jobs:
           cat aplicativo/aplicativoNuevo/composer.json
       
           #if ! git diff --staged --quiet; then
+            git status
             git add aplicativo/aplicativoNuevo/composer.json
             echo "Changes detected, committing..."
             git commit -m "Updated version to $new_version"
