@@ -84,6 +84,8 @@ jobs:
           git config --global user.email "plopez@stemdo.io"
           git config --global user.name "ploopez"
 
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
+          
           echo "Verifying changes in composer.json:"
           cat aplicativo/aplicativoNuevo/composer.json
 
