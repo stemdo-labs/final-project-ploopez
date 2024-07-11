@@ -11,7 +11,7 @@ on:
 jobs:
 
   ci_prod:
-    name: Run CI Workflow for Dev
+    name: Run CI Workflow for Prod
     uses: ./.github/workflows/ci.yml
     with:
       branch: main
@@ -41,7 +41,7 @@ jobs:
 
       - name: Delete develop branch
         run: |
-          run: git push origin --delete develop
+          run: git push origin --delete develop || true
 
       - name: Recreate develop branch from main
         run: |
