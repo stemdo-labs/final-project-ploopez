@@ -39,12 +39,15 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-
-      - name: Recreating dev branch
+      - name: Delete develop branch
         run: |
-          
-          git push origin --delete develop
-          git checkout -b develop main
+          run: git push origin --delete develop || true
+
+      - name: Recreate develop branch from main
+        run: |
+          git checkout main
+          git checkout -b develop
+          git push origin develop
       
       - name: Display current version
         run: |
@@ -55,6 +58,7 @@ jobs:
         run: |
           version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
+          echo "Updating version from $version to $new_version"
           sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
           
           echo "Updated version in composer.json:"
@@ -64,11 +68,16 @@ jobs:
         run: |
           git config --global user.email "plopez@stemdo.io"
           git config --global user.name "ploopez"
-            
+
+          echo "Verifying changes in composer.json:"
+          cat aplicativo/aplicativoNuevo/composer.json
+
           git add aplicativo/aplicativoNuevo/composer.json
-          if ! git diff --staged --quiet; then
-            git commit -m "Updated version to $new_version"
-            git push --set-upstream origin develop
-          else
+          # el if git diff se utiliza para verificar si hay cambios en el stage, 
+          if git diff --staged --quiet; then
             echo "No changes to commit."
-          fi
+            exit 0
+          else
+            echo "Changes detected, committing..."
+            git commit -m "Updated version to $new_version"
+            git push origin develop
