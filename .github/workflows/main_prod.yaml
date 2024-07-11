@@ -67,27 +67,27 @@ jobs:
           echo "Current version:"
           jq -r .version aplicativo/aplicativoNuevo/composer.json
 
-          - name: Update version in composer.json and commit changes
-          env:
-            GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-          run: |
-            git config --global user.email "plopez@stemdo.io"
-            git config --global user.name "ploopez"
-        
-            version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
-            new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
-            echo "Updating version from $version to $new_version"
-            sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
-        
-            echo "Verifying changes in composer.json:"
-            cat aplicativo/aplicativoNuevo/composer.json
-        
-            if ! git diff --staged --quiet; then
-              git add aplicativo/aplicativoNuevo/composer.json
-              echo "Changes detected, committing..."
-              git commit -m "Updated version to $new_version"
-              git pull origin develop --rebase
-              git push origin develop
-            else
-              echo "No changes to commit."
-            fi
+      - name: Update version in composer.json and commit changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git config --global user.email "plopez@stemdo.io"
+          git config --global user.name "ploopez"
+      
+          version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
+          new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
+          echo "Updating version from $version to $new_version"
+          sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
+      
+          echo "Verifying changes in composer.json:"
+          cat aplicativo/aplicativoNuevo/composer.json
+      
+          if ! git diff --staged --quiet; then
+            git add aplicativo/aplicativoNuevo/composer.json
+            echo "Changes detected, committing..."
+            git commit -m "Updated version to $new_version"
+            git pull origin develop --rebase
+            git push origin develop
+          else
+            echo "No changes to commit."
+          fi
