@@ -61,6 +61,8 @@ jobs:
           jq -r .version aplicativo/aplicativoNuevo/composer.json
           
       - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           git config --global user.email "plopez@stemdo.io"
           git config --global user.name "ploopez"
