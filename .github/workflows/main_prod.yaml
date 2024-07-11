@@ -78,17 +78,11 @@ jobs:
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
           echo "Updating version from $version to $new_version"
           jq ".version = \"$new_version\"" aplicativo/aplicativoNuevo/composer.json > temp.json
-          echo "Verifying changes in temp.json:"
-          cat temp.json
           mv temp.json aplicativo/aplicativoNuevo/composer.json
-          echo "Verifying changes in composer.json:"
-          echo "Modified composer.json:"
-          cat aplicativo/aplicativoNuevo/composer.json
-          git status
+          jq ".version = \"$new_version\"" aplicativo/aplicativoNuevo/composer.json > temp.json
+          mv temp.json aplicativo/aplicativoNuevo/composer.json
           git add aplicativo/aplicativoNuevo/composer.json
-          echo "Changes detected, committing..."
           git commit -m "Updated version to $new_version"
           git pull origin develop --rebase
           git push origin develop
           echo "Changes committed and pushed to develop"
-
