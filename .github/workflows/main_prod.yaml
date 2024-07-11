@@ -67,29 +67,27 @@ jobs:
         run: |
           echo "Current version:"
           jq -r .version aplicativo/aplicativoNuevo/composer.json
-
+          
       - name: Update version in composer.json and commit changes
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           git config --global user.email "plopez@stemdo.io"
           git config --global user.name "ploopez"
-      
           version=$(jq -r .version aplicativo/aplicativoNuevo/composer.json)
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF += 1 ; print}')
           echo "Updating version from $version to $new_version"
-          jq ".version = \"$new_version\"" aplicativo/aplicativoNuevo/composer.json > temp.json
-          echo "Verifying changes in temp.json:"
-          cat temp.json
-          echo "Moviendo temp.json a composer.json..."
-          mv temp.json aplicativo/aplicativoNuevo/composer.json
+          sed -i "s/\"version\": \"$version\"/\"version\": \"$new_version\"/" aplicativo/aplicativoNuevo/composer.json
           echo "Verifying changes in composer.json:"
           echo "Modified composer.json:"
           cat aplicativo/aplicativoNuevo/composer.json
+          #if ! git diff --staged --quiet; then
           git status
           git add aplicativo/aplicativoNuevo/composer.json
           echo "Changes detected, committing..."
           git commit -m "Updated version to $new_version"
           git pull origin develop --rebase
           git push origin develop
-          echo "Changes committed and pushed to develop"
+          #else
+            #echo "No changes to commit."
+          #fi
