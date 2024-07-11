@@ -79,6 +79,14 @@ jobs:
           echo "Updating version from $version to $new_version"
           jq ".version = \"$new_version\"" aplicativo/aplicativoNuevo/composer.json > temp.json
           mv temp.json aplicativo/aplicativoNuevo/composer.json
+          jq ".version = \"$new_version\"" aplicativo/aplicativoNuevo/composer.json > temp.json
+          echo "Verifying changes in temp.json:"
+          cat temp.json
+          mv temp.json aplicativo/aplicativoNuevo/composer.json
+          echo "Verifying changes in composer.json:"
+          echo "Modified composer.json:"
+          cat aplicativo/aplicativoNuevo/composer.json
+          git status
           git add aplicativo/aplicativoNuevo/composer.json
           git commit -m "Updated version to $new_version"
           git pull origin develop --rebase
