@@ -48,9 +48,14 @@ jobs:
           git fetch origin
           git checkout main
           git pull origin main
-          git branch -D develop || true  
-          git checkout -b develop
-          git push origin develop
+          # Verifica si la rama develop existe en remoto y cambia a ella, si no, la crea a partir de main
+          if git rev-parse --verify origin/develop; then
+            git checkout develop
+            git pull origin develop
+          else
+            git checkout -b develop
+          fi
+          git push origin develop --force
       
       - name: Checkout develop branch
         uses: actions/checkout@v4
