@@ -41,12 +41,14 @@ jobs:
 
       - name: Delete develop branch
         run: |
-          run: git push origin --delete develop || true
+          run: git push origin --delete develop
 
       - name: Recreate develop branch from main
         run: |
+          git fetch origin
           git checkout main
           git pull origin main
+          git branch -D develop || true  
           git checkout -b develop
           git push origin develop
       
@@ -88,6 +90,6 @@ jobs:
           else
             echo "Changes detected, committing..."
             git commit -m "Updated version to $new_version"
-            git pull origin develop || true
+            git pull origin develop --rebase
             git push origin develop
           fi
