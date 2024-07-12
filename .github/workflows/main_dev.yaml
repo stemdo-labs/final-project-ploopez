@@ -54,14 +54,10 @@ jobs:
         run: echo "$KUBECONFIG" > $HOME/.kube/config
       
       - name: Deploy with Helm
-        env:
-          HELM_EXPERIMENTAL_OCI: 1
         run: |
-          helm repo add my-repo https://github.com/stemdo-labs/final-project-ploopez/tree/main/kubernetes/my-application
-          helm repo update
-          helm upgrade --install my-application kubernetes/helm --values kubernetes/my-application/values-dev.yaml --namespace ns-plopez
-
-
+          helm upgrade --install my-application ./kubernetes/my-application \
+            --values ./kubernetes/my-application/values-dev.yaml \
+            --namespace ns-plopez
 
 
 
