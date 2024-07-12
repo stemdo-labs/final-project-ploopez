@@ -65,3 +65,7 @@ jobs:
           helm upgrade --install my-application ./kubernetes/my-application \
             --values ./kubernetes/my-application/values-dev.yaml \
             --namespace ns-plopez
+      
+      - name: Set kubeconfig file permissions
+        run: chmod 600 $HOME/.kube/config
+    
