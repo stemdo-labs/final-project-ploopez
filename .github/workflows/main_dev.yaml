@@ -49,24 +49,19 @@ jobs:
         run: mkdir -p $HOME/.kube
   
       - name: Configure kubectl
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-        run: echo "$KUBECONFIG" > $HOME/.kube/config
-      
+        run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+        shell: bash
+
       - name: Verify Kubernetes connection
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG: $HOME/.kube/config
         run: kubectl cluster-info
-      
+
       - name: Deploy with Helm
+        env:
+          HELM_EXPERIMENTAL_OCI: 1
+          KUBECONFIG: $HOME/.kube/config
         run: |
           helm upgrade --install my-application ./kubernetes/my-application \
             --values ./kubernetes/my-application/values-dev.yaml \
             --namespace ns-plopez
-
-
-
-
-
-          
-      
