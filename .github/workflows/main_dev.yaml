@@ -28,44 +28,44 @@ jobs:
       environment: develop
     secrets: inherit
 
-  deploy_dev:
-    name: Deploy to Kubernetes with Helm
-    needs: cd_dev
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # deploy_dev:
+  #   name: Deploy to Kubernetes with Helm
+  #   needs: cd_dev
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  #     - name: Install Helm
+  #       run: |
+  #         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.7.1
+  #     - name: Set up Helm
+  #       uses: azure/setup-helm@v1
+  #       with:
+  #         version: v3.7.1
         
-      - name: Create .kube directory
-        run: mkdir -p $HOME/.kube
+  #     - name: Create .kube directory
+  #       run: mkdir -p $HOME/.kube
   
-      - name: Configure kubectl
-        run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
-        shell: bash
+  #     - name: Configure kubectl
+  #       run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+  #       shell: bash
 
-      - name: Verify Kubernetes connection
-        env:
-          KUBECONFIG: $HOME/.kube/config
-        run: kubectl cluster-info
+  #     - name: Verify Kubernetes connection
+  #       env:
+  #         KUBECONFIG: $HOME/.kube/config
+  #       run: kubectl cluster-info
 
-      - name: Deploy with Helm
-        env:
-          HELM_EXPERIMENTAL_OCI: 1
-          KUBECONFIG: $HOME/.kube/config
-        run: |
-          helm upgrade --install my-application ./kubernetes/my-application \
-            --values ./kubernetes/my-application/values-dev.yaml \
-            --namespace ns-plopez
+  #     - name: Deploy with Helm
+  #       env:
+  #         HELM_EXPERIMENTAL_OCI: 1
+  #         KUBECONFIG: $HOME/.kube/config
+  #       run: |
+  #         helm upgrade --install my-application ./kubernetes/my-application \
+  #           --values ./kubernetes/my-application/values-dev.yaml \
+  #           --namespace ns-plopez
       
-      - name: Set kubeconfig file permissions
-        run: chmod 600 $HOME/.kube/config
+  #     - name: Set kubeconfig file permissions
+  #       run: chmod 600 $HOME/.kube/config
     
