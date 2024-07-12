@@ -86,3 +86,4 @@ jobs:
           git pull origin develop --rebase
           git push origin develop
           echo "Changes committed and pushed to develop"
+          az ad sp show --id <principal-id>
