@@ -53,6 +53,11 @@ jobs:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
         run: echo "$KUBECONFIG" > $HOME/.kube/config
       
+      - name: Verify Kubernetes connection
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: kubectl cluster-info
+      
       - name: Deploy with Helm
         run: |
           helm upgrade --install my-application ./kubernetes/my-application \
